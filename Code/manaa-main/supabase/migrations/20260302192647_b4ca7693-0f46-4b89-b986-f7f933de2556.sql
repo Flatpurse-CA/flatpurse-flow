@@ -1,0 +1,1 @@
+ALTER TABLE public.recurring_bills ADD COLUMN due_date date;

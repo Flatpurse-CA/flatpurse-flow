@@ -1,0 +1,24 @@
+{
+  "name": "Manaa — Business Finance Manager",
+  "short_name": "Manaa",
+  "description": "Manage your business finances, invoicing, inventory, and CRM in one place.",
+  "start_url": "/auth",
+  "display": "standalone",
+  "background_color": "#C0D904",
+  "theme_color": "#141414",
+  "orientation": "portrait-primary",
+  "categories": ["finance", "business", "productivity"],
+  "icons": [
+    {
+      "src": "/manaa-pwa-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}

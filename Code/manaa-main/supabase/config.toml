@@ -1,0 +1,25 @@
+project_id = "lygvlbvztmhuzrfommow"
+
+[functions]
+  [functions.admin-data]
+    verify_jwt = false
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.mono-exchange]
+    verify_jwt = false
+  [functions.mono-sync]
+    verify_jwt = false
+  [functions.mono-webhook]
+    verify_jwt = false
+  [functions.notifier]
+    verify_jwt = false
+  [functions.paystack-initialize]
+    verify_jwt = false
+  [functions.paystack-webhook]
+    verify_jwt = false
+  [functions.public-lead-submit]
+    verify_jwt = false
+  [functions.referral-link]
+    verify_jwt = false
+  [functions.send-email]
+    verify_jwt = false
