@@ -56,6 +56,14 @@ export default function Register() {
 
   // Desktop step state
   const [step, setStep] = useState<1|2|3>(1)
+  const [transitioning, setTransitioning] = useState(false)
+  const [transDir, setTransDir] = useState<1|-1>(1)
+
+  function goToStep(n: 1|2|3) {
+    setTransDir(n > step ? 1 : -1)
+    setTransitioning(true)
+    setTimeout(() => { setStep(n); setTransitioning(false) }, 360)
+  }
   const [phone, setPhone] = useState('')
   const [shopName, setShopName] = useState('')
   const [businessType, setBusinessType] = useState<string|null>(null)
@@ -290,8 +298,32 @@ export default function Register() {
     'Start free and upgrade anytime.',
   ]
 
+  const ANIM_CSS = `
+    @keyframes fp-panel-out {
+      from { opacity:1; transform:translateX(0) scale(1); filter:blur(0px); }
+      to   { opacity:0; transform:translateX(-48px) scale(0.95); filter:blur(6px); }
+    }
+    @keyframes fp-slide-in-r {
+      from { opacity:0; transform:translateX(52px); }
+      to   { opacity:1; transform:translateX(0); }
+    }
+    @keyframes fp-slide-in-l {
+      from { opacity:0; transform:translateX(-52px); }
+      to   { opacity:1; transform:translateX(0); }
+    }
+    @keyframes fp-fade-up {
+      from { opacity:0; transform:translateY(20px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+  `
+
+  const fadeUp = (delay: number): React.CSSProperties => ({
+    animation: `fp-fade-up 0.5s cubic-bezier(0.16,1,0.3,1) ${delay}ms both`,
+  })
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: C.bg, fontFamily: "'DM Sans', system-ui, sans-serif", colorScheme: mode, transition: 'background 0.2s' }}>
+      <style>{ANIM_CSS}</style>
 
       {/* ── Download modal ── */}
       {showDownloadModal && (
@@ -321,9 +353,9 @@ export default function Register() {
         </div>
       )}
 
-      {/* Left panel — step 1 only */}
-      {step === 1 && (
-        <div style={{ width: '45%', minWidth: 420, position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '48px 44px', overflow: 'hidden' }}>
+      {/* Left panel — step 1, or animating out during transition */}
+      {(step === 1 || transitioning) && (
+        <div style={{ width: '45%', minWidth: 420, position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '48px 44px', overflow: 'hidden', animation: transitioning ? 'fp-panel-out 0.36s cubic-bezier(0.4,0,1,1) forwards' : 'none' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 60% 10%, #7C3AED 0%, #4C1D95 35%, #1A0A2E 65%, #09090B 100%)', borderRadius: 20, margin: 12 }} />
           <div style={{ position: 'absolute', inset: 0, margin: 12, borderRadius: 20, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")` }} />
           <div style={{ position: 'absolute', top: 44, left: 44, zIndex: 1 }}>
@@ -365,10 +397,10 @@ export default function Register() {
         </div>
 
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 40px', overflowY: 'auto' }}>
-          <div style={{ width: '100%', maxWidth: step === 3 ? 960 : 400 }}>
+          <div key={step} style={{ width: '100%', maxWidth: step === 3 ? 960 : 400, animation: `${transDir === 1 ? 'fp-slide-in-r' : 'fp-slide-in-l'} 0.42s cubic-bezier(0.16,1,0.3,1) both` }}>
             {/* Step progress dots — steps 2 and 3 */}
             {step > 1 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28, ...fadeUp(0) }}>
                 {steps.map((s, i) => (
                   <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -380,35 +412,35 @@ export default function Register() {
                 <span style={{ fontSize: 12, color: C.muted, marginLeft: 4 }}>Step {step} of {steps.length}</span>
               </div>
             )}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, ...fadeUp(30) }}>
               <h1 style={{ color: C.text, fontSize: 26, fontWeight: 700, letterSpacing: '-0.025em', margin: 0 }}>{STEP_HEADING[step - 1]}</h1>
               {step > 1 && (
-                <button onClick={() => setStep(s => (s - 1) as 1|2|3)}
+                <button onClick={() => goToStep((step - 1) as 1|2|3)}
                   style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 14px', color: C.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   Back
                 </button>
               )}
             </div>
-            <p style={{ color: C.muted, fontSize: 14, marginBottom: 32, lineHeight: 1.6 }}>{STEP_SUB[step - 1]}</p>
+            <p style={{ color: C.muted, fontSize: 14, marginBottom: 32, lineHeight: 1.6, ...fadeUp(60) }}>{STEP_SUB[step - 1]}</p>
 
             {/* ── Step 1 ── */}
             {step === 1 && (
               <>
-                <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+                <div style={{ display: 'flex', gap: 12, marginBottom: 24, ...fadeUp(80) }}>
                   {[{ icon: <GoogleIcon />, label: 'Google' }, { icon: <AppleIcon />, label: 'Apple' }].map(({ icon, label }) => (
                     <button key={label} type="button" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: C.socialBg, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 16px', color: C.text, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
                       {icon}{label}
                     </button>
                   ))}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, ...fadeUp(120) }}>
                   <div style={{ flex: 1, height: 1, background: C.border }} />
                   <span style={{ color: C.muted, fontSize: 13 }}>Or</span>
                   <div style={{ flex: 1, height: 1, background: C.border }} />
                 </div>
 
-                <div style={{ display: 'flex', gap: 12, marginBottom: 18 }}>
+                <div style={{ display: 'flex', gap: 12, marginBottom: 18, ...fadeUp(160) }}>
                   <div style={{ flex: 1 }}>
                     <label style={lbl}>First Name</label>
                     <input type="text" autoComplete="given-name" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="eg. John" style={di} onFocus={onF} onBlur={onB} />
@@ -418,15 +450,15 @@ export default function Register() {
                     <input type="text" autoComplete="family-name" value={lastName} onChange={e => setLastName(e.target.value)} placeholder="eg. Francisco" style={di} onFocus={onF} onBlur={onB} />
                   </div>
                 </div>
-                <div style={{ marginBottom: 18 }}>
+                <div style={{ marginBottom: 18, ...fadeUp(200) }}>
                   <label style={lbl}>Email</label>
                   <input type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="eg. johnfrans@gmail.com" style={di} onFocus={onF} onBlur={onB} />
                 </div>
-                <div style={{ marginBottom: 18 }}>
+                <div style={{ marginBottom: 18, ...fadeUp(240) }}>
                   <label style={lbl}>Phone Number</label>
                   <input type="tel" autoComplete="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="eg. +1 780-555-0123" style={di} onFocus={onF} onBlur={onB} />
                 </div>
-                <div style={{ marginBottom: 18 }}>
+                <div style={{ marginBottom: 18, ...fadeUp(280) }}>
                   <label style={lbl}>Password</label>
                   <div style={{ position: 'relative' }}>
                     <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter your password" style={{ ...di, paddingRight: 44 }} onFocus={onF} onBlur={onB} />
@@ -437,10 +469,12 @@ export default function Register() {
                   <p style={{ color: C.muted, fontSize: 12, marginTop: 6 }}>Must be at least 8 characters.</p>
                 </div>
                 {error && <div style={{ background: mode === 'dark' ? 'rgba(248,113,113,0.08)' : 'rgba(220,38,38,0.06)', border: `1px solid ${mode === 'dark' ? 'rgba(248,113,113,0.25)' : 'rgba(220,38,38,0.2)'}`, borderRadius: 10, padding: '12px 14px', color: C.error, fontSize: 13, lineHeight: 1.5, marginBottom: 16 }}>{error}</div>}
-                <button type="button" onClick={() => setStep(2)} style={{ width: '100%', background: C.submitBg, color: C.submitText, border: 'none', borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                  Next Step <ArrowRightIcon />
-                </button>
-                <p style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 20 }}>
+                <div style={fadeUp(320)}>
+                  <button type="button" onClick={() => goToStep(2)} style={{ width: '100%', background: C.submitBg, color: C.submitText, border: 'none', borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    Next Step <ArrowRightIcon />
+                  </button>
+                </div>
+                <p style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 20, ...fadeUp(360) }}>
                   Already have an account?{' '}
                   <span onClick={() => navigate('/login')} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>Log in</span>
                 </p>
@@ -450,11 +484,11 @@ export default function Register() {
             {/* ── Step 2 ── */}
             {step === 2 && (
               <>
-                <div style={{ marginBottom: 18 }}>
+                <div style={{ marginBottom: 18, ...fadeUp(80) }}>
                   <label style={lbl}>Shop Name</label>
                   <input type="text" value={shopName} onChange={e => setShopName(e.target.value)} placeholder="eg. Compound Cut Club" style={di} onFocus={onF} onBlur={onB} />
                 </div>
-                <div style={{ marginBottom: 18 }}>
+                <div style={{ marginBottom: 18, ...fadeUp(140) }}>
                   <label style={lbl}>Business Type</label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {BUSINESS_TYPES.map(t => (
@@ -465,7 +499,7 @@ export default function Register() {
                     ))}
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 12, marginBottom: 18 }}>
+                <div style={{ display: 'flex', gap: 12, marginBottom: 18, ...fadeUp(200) }}>
                   <div style={{ flex: 1 }}>
                     <label style={lbl}>City</label>
                     <input type="text" value={city} onChange={e => setCity(e.target.value)} placeholder="eg. Edmonton" style={di} onFocus={onF} onBlur={onB} />
@@ -479,8 +513,8 @@ export default function Register() {
                     </select>
                   </div>
                 </div>
-                <div style={{ marginTop: 26 }}>
-                  <button type="button" onClick={() => setStep(3)} style={{ width: '100%', background: C.submitBg, color: C.submitText, border: 'none', borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <div style={{ marginTop: 26, ...fadeUp(260) }}>
+                  <button type="button" onClick={() => goToStep(3)} style={{ width: '100%', background: C.submitBg, color: C.submitText, border: 'none', borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                     Next Step <ArrowRightIcon />
                   </button>
                 </div>
@@ -491,7 +525,7 @@ export default function Register() {
             {step === 3 && (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12, marginBottom: 14, alignItems: 'stretch' }}>
-                  {PRICING.map(plan => {
+                  {PRICING.map((plan, pi) => {
                     const sel = selectedPlan === plan.id
                     const hot = hoveredPlan === plan.id
                     const lit = sel || hot
@@ -502,7 +536,7 @@ export default function Register() {
                         onClick={() => setSelectedPlan(plan.id)}
                         onMouseEnter={() => setHoveredPlan(plan.id)}
                         onMouseLeave={() => setHoveredPlan(null)}
-                        style={{ position: 'relative', background: 'rgba(255,255,255,0.03)', border: `1px solid ${sel ? 'rgba(124,58,237,0.6)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 0, padding: '22px 18px 20px', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.25s', boxShadow: sel ? '0 0 0 1px rgba(124,58,237,0.3), 0 16px 48px rgba(109,40,217,0.25)' : 'none' }}>
+                        style={{ position: 'relative', background: 'rgba(255,255,255,0.03)', border: `1px solid ${sel ? 'rgba(124,58,237,0.6)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 0, padding: '22px 18px 20px', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.25s', boxShadow: sel ? '0 0 0 1px rgba(124,58,237,0.3), 0 16px 48px rgba(109,40,217,0.25)' : 'none', ...fadeUp(80 + pi * 70) }}>
 
                         {/* Bottom-bloom gradient overlay */}
                         <div style={{ position: 'absolute', inset: 0, background: plan.founders
