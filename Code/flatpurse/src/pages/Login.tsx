@@ -54,19 +54,18 @@ export default function Login() {
   return (
     <div style={{
       height: '100dvh',
-      background: C.bg,
+      background: mode === 'dark'
+        ? 'radial-gradient(ellipse 140% 55% at 50% 0%, #6200EE 0%, #3700B3 30%, #190040 60%, #09090B 85%)'
+        : C.bg,
       fontFamily: "'DM Sans', system-ui, sans-serif",
       colorScheme: mode,
       display: 'flex',
       flexDirection: 'column',
     }}>
 
-      {/* ── Banner ────────────────────────────────────────────── */}
+      {/* ── Banner (logo + toggle only) ───────────────────────── */}
       <div style={{
         flexShrink: 0,
-        background: mode === 'dark'
-          ? `linear-gradient(180deg, #6D28D9 0%, #4C1D95 40%, #1E0A3C 70%, ${C.bg} 100%)`
-          : C.bg,
         padding: '16px 24px 28px',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
