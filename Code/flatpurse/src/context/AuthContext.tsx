@@ -1,8 +1,15 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { api, setToken, clearToken, type Me } from '../lib/api'
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import type { Session, User } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
 
-interface AuthUser extends Me {
-  token: string
+interface AuthUser {
+  id: string
+  email: string | undefined
+  phone: string | undefined
+  firstName: string
+  lastName: string
+  businessName: string
+  businessType: string
 }
 
 export interface RegisterPayload {
@@ -20,78 +27,88 @@ export interface RegisterPayload {
 
 interface AuthContextValue {
   user: AuthUser | null
+  session: Session | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
-  register: (data: RegisterPayload) => Promise<void>
-  logout: () => void
+  sendOtp: (phone: string) => Promise<void>
+  verifyOtp: (phone: string, token: string) => Promise<void>
+  completeRegistration: (payload: RegisterPayload) => Promise<void>
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
+function mapUser(user: User): AuthUser {
+  const meta = user.user_metadata ?? {}
+  return {
+    id: user.id,
+    email: user.email,
+    phone: user.phone,
+    firstName: meta.firstName ?? '',
+    lastName: meta.lastName ?? '',
+    businessName: meta.businessName ?? '',
+    businessType: meta.businessType ?? '',
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('fp_token')
-    if (!token) { setLoading(false); return }
-    api.get<Me>('/auth/me')
-      .then(me => setUser({ ...me, token }))
-      .catch(() => clearToken())
-      .finally(() => setLoading(false))
-  }, [])
-
-  const login = useCallback(async (email: string, password: string) => {
-    const res = await api.post<{
-      accessToken: string; success: boolean; errorMessage: string | null;
-      email: string; firstName: string; lastName: string;
-      organizationId: string; businessName: string; businessType: string; accountId: string;
-    }>('/auth/login', { email, password })
-
-    if (!res.success) throw new Error(res.errorMessage || 'Login failed')
-
-    setToken(res.accessToken)
-    setUser({
-      token: res.accessToken,
-      accountId: res.accountId,
-      email: res.email,
-      firstName: res.firstName,
-      lastName: res.lastName,
-      organizationId: res.organizationId,
-      businessName: res.businessName,
-      businessType: res.businessType,
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setLoading(false)
     })
-  }, [])
 
-  const register = useCallback(async (data: RegisterPayload) => {
-    const res = await api.post<{
-      accessToken: string; success: boolean; errorMessage: string | null;
-      email: string; firstName: string; lastName: string;
-      organizationId: string; businessName: string; businessType: string; accountId: string;
-    }>('/auth/register', data)
-
-    if (!res.success) throw new Error(res.errorMessage || 'Registration failed')
-
-    setToken(res.accessToken)
-    setUser({
-      token: res.accessToken,
-      accountId: res.accountId,
-      email: res.email,
-      firstName: res.firstName,
-      lastName: res.lastName,
-      organizationId: res.organizationId,
-      businessName: res.businessName,
-      businessType: res.businessType,
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
     })
+
+    return () => subscription.unsubscribe()
   }, [])
 
-  const logout = useCallback(() => {
-    clearToken()
-    setUser(null)
-  }, [])
+  const user = session?.user ? mapUser(session.user) : null
+
+  const login = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) throw new Error(error.message)
+  }
+
+  const sendOtp = async (phone: string) => {
+    const { error } = await supabase.auth.signInWithOtp({ phone, options: { channel: 'sms' } })
+    if (error) throw new Error(error.message)
+  }
+
+  const verifyOtp = async (phone: string, token: string) => {
+    const { error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' })
+    if (error) throw new Error(error.message)
+  }
+
+  const completeRegistration = async (payload: RegisterPayload) => {
+    const { error } = await supabase.auth.updateUser({
+      email: payload.email,
+      password: payload.password,
+      data: {
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        phone: payload.phone,
+        businessName: payload.businessName,
+        businessType: payload.businessType,
+        city: payload.city,
+        province: payload.province,
+        plan: payload.plan,
+      },
+    })
+    if (error) throw new Error(error.message)
+  }
+
+  const logout = async () => {
+    await supabase.auth.signOut()
+  }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, session, loading, login, sendOtp, verifyOtp, completeRegistration, logout }}>
       {children}
     </AuthContext.Provider>
   )

@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { palette, useIsMobile, type Mode } from '../lib/auth-ui'
 import { useAuth } from '../context/AuthContext'
-import { api } from '../lib/api'
 
 const steps = [
   { n: 1, label: 'Create your account' },
@@ -52,7 +51,7 @@ const PRICING = [
 
 export default function Register() {
   const navigate = useNavigate()
-  const { register } = useAuth()
+  const { sendOtp: authSendOtp, verifyOtp: authVerifyOtp, completeRegistration } = useAuth()
   const isMobile = useIsMobile()
 
   const [mode, setMode] = useState<Mode>('dark')
@@ -123,7 +122,7 @@ export default function Register() {
   }
 
   async function sendOtp() {
-    await api.post('/auth/send-otp', { phone })
+    await authSendOtp(phone)
   }
 
   async function verifyAndRegister() {
@@ -131,8 +130,8 @@ export default function Register() {
     if (code.length < 6) { setError('Please enter the full 6-digit code.'); return }
     setError(null); setLoading(true)
     try {
-      await api.post('/auth/verify-otp', { phone, code })
-      await register({ firstName, lastName, email, password, phone, businessName: shopName, businessType: businessType ?? '', city, province, plan: selectedPlan })
+      await authVerifyOtp(phone, code)
+      await completeRegistration({ firstName, lastName, email, password, phone, businessName: shopName, businessType: businessType ?? '', city, province, plan: selectedPlan })
       setShowDownloadModal(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification failed. Please try again.')
@@ -819,7 +818,7 @@ export default function Register() {
                   <span onClick={async () => {
                     setOtp(['', '', '', '', '', ''])
                     setError(null)
-                    try { await api.post('/auth/send-otp', { phone }) } catch {}
+                    try { await authSendOtp(phone) } catch {}
                   }} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>Resend</span>
                 </p>
               </>
