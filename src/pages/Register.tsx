@@ -530,18 +530,20 @@ export default function Register() {
                     const hot = hoveredPlan === plan.id
                     const lit = sel || hot
                     const badge = plan.popular ? 'Popular' : plan.founders ? 'Limited' : null
-                    const badgeColor = plan.founders ? { bg: 'rgba(251,191,36,0.15)', border: 'rgba(251,191,36,0.35)', text: '#FCD34D' } : { bg: 'rgba(139,92,246,0.25)', border: 'rgba(167,139,250,0.45)', text: '#C4B5FD' }
+                    const badgeColor = plan.founders
+                      ? { bg: mode === 'dark' ? 'rgba(251,191,36,0.15)' : 'rgba(161,98,7,0.12)', border: mode === 'dark' ? 'rgba(251,191,36,0.35)' : 'rgba(161,98,7,0.3)', text: mode === 'dark' ? '#FCD34D' : '#92400E' }
+                      : { bg: mode === 'dark' ? 'rgba(139,92,246,0.25)' : 'rgba(109,40,217,0.12)', border: mode === 'dark' ? 'rgba(167,139,250,0.45)' : 'rgba(109,40,217,0.3)', text: mode === 'dark' ? '#C4B5FD' : '#5B21B6' }
                     return (
                       <div key={plan.id}
                         onClick={() => setSelectedPlan(plan.id)}
                         onMouseEnter={() => setHoveredPlan(plan.id)}
                         onMouseLeave={() => setHoveredPlan(null)}
-                        style={{ position: 'relative', background: mode === 'dark' ? 'rgba(255,255,255,0.03)' : C.surface, border: `1px solid ${sel ? 'rgba(124,58,237,0.6)' : mode === 'dark' ? 'rgba(255,255,255,0.08)' : C.border}`, borderRadius: 0, padding: '22px 18px 20px', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.25s', boxShadow: sel ? '0 0 0 1px rgba(124,58,237,0.3), 0 16px 48px rgba(109,40,217,0.25)' : 'none', ...fadeUp(80 + pi * 70) }}>
+                        style={{ position: 'relative', background: mode === 'dark' ? 'rgba(255,255,255,0.03)' : lit ? (plan.founders ? '#FFFBEB' : '#F5F3FF') : C.surface, border: `1px solid ${sel ? 'rgba(124,58,237,0.6)' : mode === 'dark' ? 'rgba(255,255,255,0.08)' : C.border}`, borderRadius: 0, padding: '22px 18px 20px', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.25s, background 0.25s', boxShadow: sel ? '0 0 0 1px rgba(124,58,237,0.3), 0 16px 48px rgba(109,40,217,0.25)' : 'none', ...fadeUp(80 + pi * 70) }}>
 
-                        {/* Bottom-bloom gradient overlay */}
+                        {/* Bottom-bloom gradient overlay — dark mode only */}
                         <div style={{ position: 'absolute', inset: 0, background: plan.founders
                           ? 'radial-gradient(ellipse 140% 60% at 50% 100%, rgba(161,98,7,0.6) 0%, rgba(120,53,15,0.35) 40%, rgba(9,9,11,0) 75%)'
-                          : 'radial-gradient(ellipse 140% 60% at 50% 100%, #6D28D9 0%, #4C1D95 28%, #1E0A3C 58%, rgba(9,9,11,0) 85%)', opacity: lit ? 1 : 0, transition: 'opacity 0.35s ease', pointerEvents: 'none' }} />
+                          : 'radial-gradient(ellipse 140% 60% at 50% 100%, #6D28D9 0%, #4C1D95 28%, #1E0A3C 58%, rgba(9,9,11,0) 85%)', opacity: mode === 'dark' && lit ? 1 : 0, transition: 'opacity 0.35s ease', pointerEvents: 'none' }} />
 
                         {/* Selected check — top right */}
                         {sel && (
@@ -563,32 +565,32 @@ export default function Register() {
                           )}
 
                           {/* Plan name */}
-                          <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: lit ? 'rgba(196,181,253,0.65)' : C.muted, margin: '0 0 10px', transition: 'color 0.25s' }}>
+                          <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: lit ? (mode === 'dark' ? 'rgba(196,181,253,0.65)' : plan.founders ? '#92400E' : '#7C3AED') : C.muted, margin: '0 0 10px', transition: 'color 0.25s' }}>
                             {plan.name}
                           </p>
 
                           {/* Price */}
                           <div style={{ marginBottom: 8 }}>
-                            <span style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1, color: lit ? '#EDE9FE' : C.text, transition: 'color 0.25s' }}>
+                            <span style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1, color: lit && mode === 'dark' ? '#EDE9FE' : C.text, transition: 'color 0.25s' }}>
                               {plan.price}
                             </span>
-                            <span style={{ fontSize: 11, color: lit ? 'rgba(196,181,253,0.55)' : C.muted, marginLeft: 3, transition: 'color 0.25s' }}>
+                            <span style={{ fontSize: 11, color: lit ? (mode === 'dark' ? 'rgba(196,181,253,0.55)' : plan.founders ? '#92400E' : '#7C3AED') : C.muted, marginLeft: 3, transition: 'color 0.25s' }}>
                               {plan.period}
                             </span>
                           </div>
 
                           {/* Description */}
-                          <p style={{ fontSize: 11.5, color: lit ? 'rgba(196,181,253,0.65)' : C.muted, lineHeight: 1.55, margin: '0 0 14px', minHeight: 36, transition: 'color 0.25s' }}>
+                          <p style={{ fontSize: 11.5, color: lit ? (mode === 'dark' ? 'rgba(196,181,253,0.65)' : plan.founders ? '#78350F' : '#5B21B6') : C.muted, lineHeight: 1.55, margin: '0 0 14px', minHeight: 36, transition: 'color 0.25s' }}>
                             {plan.desc}
                           </p>
 
                           {/* Divider */}
-                          <div style={{ height: 1, background: lit ? 'rgba(139,92,246,0.25)' : C.border, marginBottom: 13, transition: 'background 0.25s' }} />
+                          <div style={{ height: 1, background: lit ? (mode === 'dark' ? 'rgba(139,92,246,0.25)' : plan.founders ? 'rgba(161,98,7,0.2)' : 'rgba(109,40,217,0.2)') : C.border, marginBottom: 13, transition: 'background 0.25s' }} />
 
                           {/* Features */}
                           <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 18px', display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
                             {plan.features.map(f => (
-                              <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11.5, color: lit ? 'rgba(224,213,255,0.82)' : C.muted, lineHeight: 1.3, transition: 'color 0.25s' }}>
+                              <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11.5, color: lit ? (mode === 'dark' ? 'rgba(224,213,255,0.82)' : plan.founders ? '#78350F' : '#4C1D95') : C.muted, lineHeight: 1.3, transition: 'color 0.25s' }}>
                                 <PlanCheck accent={lit} founders={plan.founders} dark={mode === 'dark'} />
                                 {f}
                               </li>
@@ -609,11 +611,15 @@ export default function Register() {
                             }}
                               style={{
                                 width: '100%',
-                                background: loading
-                                  ? C.surface2
-                                  : plan.founders ? 'rgba(161,98,7,0.5)' : 'rgba(109,40,217,0.45)',
-                                border: `1px solid ${plan.founders ? 'rgba(217,160,30,0.7)' : 'rgba(139,92,246,0.65)'}`,
-                                color: plan.founders ? '#FDE68A' : '#E9D5FF',
+                                background: loading ? C.surface2 : plan.founders
+                                  ? (mode === 'dark' ? 'rgba(161,98,7,0.5)' : '#92400E')
+                                  : (mode === 'dark' ? 'rgba(109,40,217,0.45)' : '#7C3AED'),
+                                border: `1px solid ${plan.founders
+                                  ? (mode === 'dark' ? 'rgba(217,160,30,0.7)' : 'rgba(161,98,7,0.5)')
+                                  : (mode === 'dark' ? 'rgba(139,92,246,0.65)' : 'rgba(109,40,217,0.5)')}`,
+                                color: plan.founders
+                                  ? (mode === 'dark' ? '#FDE68A' : '#FEF3C7')
+                                  : (mode === 'dark' ? '#E9D5FF' : '#fff'),
                                 borderRadius: 8, padding: '11px 0', fontSize: 13, fontWeight: 700,
                                 cursor: loading ? 'default' : 'pointer',
                                 letterSpacing: '0.01em',
