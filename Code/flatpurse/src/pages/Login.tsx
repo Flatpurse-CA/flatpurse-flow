@@ -128,7 +128,10 @@ export default function Login() {
           <img
             src="/Flatpurse flow .svg"
             alt="Flatpurse"
-            style={{ height: 36, width: 'auto' }}
+            style={{
+              height: 36, width: 'auto',
+              filter: 'brightness(0) invert(1)',
+            }}
           />
         </div>
 
