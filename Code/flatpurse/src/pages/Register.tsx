@@ -69,7 +69,7 @@ export default function Register() {
           background: `linear-gradient(180deg, #6D28D9 0%, #4C1D95 40%, #1E0A3C 70%, ${C.bg} 100%)`,
           padding: '16px 24px 28px',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <img src="/Flatpurse flow .svg" alt="Flatpurse"
               style={{ height: 28, width: 'auto', filter: 'brightness(0) invert(1)' }} />
             <button onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')} style={{
@@ -81,16 +81,16 @@ export default function Register() {
               {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
             </button>
           </div>
-          <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 4 }}>
-            Create account
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, lineHeight: 1.5, margin: 0 }}>
-            Enter your details to get started.
-          </p>
         </div>
 
         {/* Main content — fills remaining, centred */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px', paddingBottom: 16 }}>
+          <h1 style={{ color: C.text, fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 4 }}>
+            Create account
+          </h1>
+          <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.5, margin: '0 0 22px' }}>
+            Enter your details to get started.
+          </p>
 
           <form onSubmit={handleSubmit}>
 
