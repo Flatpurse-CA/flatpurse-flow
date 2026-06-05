@@ -151,10 +151,10 @@ export default function Login() {
   if (isMobile) {
     return (
       <div style={{ minHeight: '100vh', background: C.bg, fontFamily: "'DM Sans', system-ui, sans-serif", colorScheme: mode }}>
-        {/* Gradient banner */}
+        {/* Gradient banner — fades into page bg, no hard cutoff */}
         <div style={{
-          background: 'radial-gradient(ellipse at 50% -20%, #7C3AED 0%, #4C1D95 50%, #1A0A2E 100%)',
-          padding: '60px 24px 72px',
+          background: `linear-gradient(180deg, #6D28D9 0%, #4C1D95 40%, #1E0A3C 70%, ${C.bg} 100%)`,
+          padding: '56px 24px 80px',
           textAlign: 'center',
           position: 'relative',
         }}>
@@ -169,26 +169,21 @@ export default function Login() {
             </a>
           </div>
 
-          <img
-            src="/Flatpurse flow .svg"
-            alt="Flatpurse"
-            style={{ height: 28, width: 'auto', filter: 'brightness(0) invert(1)', marginBottom: 28 }}
-          />
-          <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 700, letterSpacing: '-0.025em', marginBottom: 8 }}>
+          {/* White inline logo — always crisp on gradient */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 32 }}>
+            <BoltIcon />
+            <span style={{ color: '#fff', fontWeight: 700, fontSize: 18, letterSpacing: '-0.02em' }}>FlatPurse<br /><span style={{ fontWeight: 400, fontSize: 14, opacity: 0.8 }}>Flow</span></span>
+          </div>
+          <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 10 }}>
             Sign In Account
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, lineHeight: 1.5 }}>
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 15, lineHeight: 1.5 }}>
             Enter your credentials to access your dashboard.
           </p>
         </div>
 
-        {/* Form card slides up */}
-        <div style={{
-          background: C.bg,
-          borderRadius: '24px 24px 0 0',
-          marginTop: -24,
-          padding: '32px 24px 48px',
-        }}>
+        {/* Form — no gap, gradient already fades into this bg */}
+        <div style={{ padding: '8px 24px 56px' }}>
           {socials}
           {form}
         </div>
@@ -251,6 +246,14 @@ export default function Login() {
 }
 
 // ── Icons ──────────────────────────────────────────────────────────────────────
+
+function BoltIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 48 46" fill="none">
+      <path fill="#fff" d="M25.946 44.938c-.664.845-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.287c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.497 0-3.578-1.842-3.578H1.237c-.92 0-1.456-1.04-.92-1.788L10.013.474c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.579 1.842 3.579h11.377c.943 0 1.473 1.088.89 1.83L25.947 44.94z"/>
+    </svg>
+  )
+}
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
