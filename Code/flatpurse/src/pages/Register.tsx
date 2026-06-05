@@ -390,8 +390,8 @@ export default function Register() {
             <img key={slide.img} src={slide.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', opacity: i === carouselIdx ? 1 : 0, transition: 'opacity 1.2s ease' }} />
           ))}
 
-          {/* Scrim — dark at bottom for text, subtle at top */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, transparent 35%, transparent 40%, rgba(0,0,0,0.78) 100%)', pointerEvents: 'none' }} />
+          {/* Scrim — dark purple-black at bottom for text, subtle at top */}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, transparent 28%, rgba(30,8,56,0.55) 58%, rgba(15,3,32,0.93) 100%)', pointerEvents: 'none' }} />
 
           {/* Logo */}
           <div style={{ position: 'absolute', top: 32, left: 32, zIndex: 2 }}>
