@@ -348,17 +348,9 @@ export default function Register() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Top bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 32px', gap: 10, flexShrink: 0 }}>
-          {/* Left side: logo (steps 2+) + back button (steps 2+) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             {step > 1 && (
               <img src="/Flatpurse flow .svg" alt="Flatpurse" style={{ height: 26, filter: mode === 'dark' ? 'brightness(0) invert(1)' : 'none' }} />
-            )}
-            {step > 1 && (
-              <button onClick={() => setStep(s => (s - 1) as 1|2|3)}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 14px', color: C.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                Back
-              </button>
             )}
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -388,7 +380,16 @@ export default function Register() {
                 <span style={{ fontSize: 12, color: C.muted, marginLeft: 4 }}>Step {step} of {steps.length}</span>
               </div>
             )}
-            <h1 style={{ color: C.text, fontSize: 26, fontWeight: 700, letterSpacing: '-0.025em', marginBottom: 8 }}>{STEP_HEADING[step - 1]}</h1>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <h1 style={{ color: C.text, fontSize: 26, fontWeight: 700, letterSpacing: '-0.025em', margin: 0 }}>{STEP_HEADING[step - 1]}</h1>
+              {step > 1 && (
+                <button onClick={() => setStep(s => (s - 1) as 1|2|3)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 14px', color: C.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  Back
+                </button>
+              )}
+            </div>
             <p style={{ color: C.muted, fontSize: 14, marginBottom: 32, lineHeight: 1.6 }}>{STEP_SUB[step - 1]}</p>
 
             {/* ── Step 1 ── */}
