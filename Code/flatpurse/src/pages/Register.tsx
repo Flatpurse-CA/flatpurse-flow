@@ -15,20 +15,26 @@ const PRICING = [
   {
     id: 'starter', name: 'Starter', price: '$0', period: '/month',
     desc: 'Ideal for solo operators and small salons',
-    cta: 'Start for Free', popular: false,
+    cta: 'Start for Free', popular: false, founders: false,
     features: ['50 appts/mo', '1 staff', 'Booking page', 'AutoPilot basic', 'Tap to Pay'],
   },
   {
     id: 'pro', name: 'Pro', price: 'C$49', period: '/month',
     desc: 'Best for growing salons and studios',
-    cta: 'Sign Up with Pro', popular: true,
+    cta: 'Sign Up with Pro', popular: true, founders: false,
     features: ['Unlimited appts', 'Full AutoPilot', 'Client Intelligence', 'SMS + Email', 'Daily Brief'],
   },
   {
     id: 'unlimited', name: 'Unlimited', price: 'C$274', period: '/month',
     desc: 'For large studios and multi-location shops',
-    cta: 'Sign Up with Unlimited', popular: false,
+    cta: 'Sign Up with Unlimited', popular: false, founders: false,
     features: ['Everything in Pro+', 'Multi-location', 'Custom integrations', 'White-glove onboard', 'SLA guarantee'],
+  },
+  {
+    id: 'founders', name: 'Founders', price: 'C$29', period: '/month',
+    desc: 'Pro at half price — locked in forever. 50 spots only.',
+    cta: 'Claim Founders Rate', popular: false, founders: true,
+    features: ['Everything in Pro', 'Price locked forever', 'Founding member badge', 'Early access features', '50 spots remaining'],
   },
 ]
 
@@ -357,7 +363,7 @@ export default function Register() {
         </div>
 
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 40px', overflowY: 'auto' }}>
-          <div style={{ width: '100%', maxWidth: step === 3 ? 660 : 400 }}>
+          <div style={{ width: '100%', maxWidth: step === 3 ? 960 : 400 }}>
             {/* Step progress dots — steps 2 and 3 */}
             {step > 1 && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
@@ -474,31 +480,36 @@ export default function Register() {
             {/* ── Step 3: Pricing ── */}
             {step === 3 && (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 14, alignItems: 'stretch' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12, marginBottom: 14, alignItems: 'stretch' }}>
                   {PRICING.map(plan => {
                     const sel = selectedPlan === plan.id
                     const hot = hoveredPlan === plan.id
                     const lit = sel || hot
+                    const badge = plan.popular ? 'Popular' : plan.founders ? 'Limited' : null
+                    const badgeColor = plan.founders ? { bg: 'rgba(251,191,36,0.15)', border: 'rgba(251,191,36,0.35)', text: '#FCD34D' } : { bg: 'rgba(139,92,246,0.25)', border: 'rgba(167,139,250,0.45)', text: '#C4B5FD' }
                     return (
                       <div key={plan.id}
                         onClick={() => setSelectedPlan(plan.id)}
                         onMouseEnter={() => setHoveredPlan(plan.id)}
                         onMouseLeave={() => setHoveredPlan(null)}
-                        style={{ position: 'relative', background: 'rgba(255,255,255,0.03)', border: `1px solid ${sel ? 'rgba(124,58,237,0.6)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 18, padding: '20px 16px 18px', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.25s', boxShadow: sel ? '0 0 0 1px rgba(124,58,237,0.3), 0 16px 48px rgba(109,40,217,0.25)' : 'none' }}>
+                        style={{ position: 'relative', background: 'rgba(255,255,255,0.03)', border: `1px solid ${sel ? 'rgba(124,58,237,0.6)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 18, padding: '22px 18px 20px', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.25s', boxShadow: sel ? '0 0 0 1px rgba(124,58,237,0.3), 0 16px 48px rgba(109,40,217,0.25)' : 'none' }}>
 
-                        {/* Bottom-bloom gradient overlay — fades in on hover/select */}
-                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 140% 60% at 50% 100%, #6D28D9 0%, #4C1D95 28%, #1E0A3C 58%, rgba(9,9,11,0) 85%)', opacity: lit ? 1 : 0, transition: 'opacity 0.35s ease', pointerEvents: 'none' }} />
+                        {/* Bottom-bloom gradient overlay */}
+                        <div style={{ position: 'absolute', inset: 0, background: plan.founders
+                          ? 'radial-gradient(ellipse 140% 60% at 50% 100%, rgba(161,98,7,0.6) 0%, rgba(120,53,15,0.35) 40%, rgba(9,9,11,0) 75%)'
+                          : 'radial-gradient(ellipse 140% 60% at 50% 100%, #6D28D9 0%, #4C1D95 28%, #1E0A3C 58%, rgba(9,9,11,0) 85%)', opacity: lit ? 1 : 0, transition: 'opacity 0.35s ease', pointerEvents: 'none' }} />
 
-                        {/* Content sits above gradient */}
+                        {/* Content */}
                         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
 
-                          {/* Popular pill */}
-                          {plan.popular && (
-                            <div style={{ alignSelf: 'flex-start', background: lit ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.07)', border: `1px solid ${lit ? 'rgba(167,139,250,0.45)' : 'rgba(255,255,255,0.12)'}`, borderRadius: 100, padding: '3px 9px', fontSize: 9, fontWeight: 700, color: lit ? '#C4B5FD' : C.muted, letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: 12, transition: 'all 0.25s' }}>
-                              Popular
+                          {/* Badge */}
+                          {badge ? (
+                            <div style={{ alignSelf: 'flex-start', background: lit ? badgeColor.bg : 'rgba(255,255,255,0.07)', border: `1px solid ${lit ? badgeColor.border : 'rgba(255,255,255,0.12)'}`, borderRadius: 100, padding: '3px 9px', fontSize: 9, fontWeight: 700, color: lit ? badgeColor.text : C.muted, letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: 12, transition: 'all 0.25s' }}>
+                              {badge}
                             </div>
+                          ) : (
+                            <div style={{ height: 21, marginBottom: 12 }} />
                           )}
-                          {!plan.popular && <div style={{ height: 0, marginBottom: 12 }} />}
 
                           {/* Plan name */}
                           <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: lit ? 'rgba(196,181,253,0.65)' : C.muted, margin: '0 0 10px', transition: 'color 0.25s' }}>
@@ -507,7 +518,7 @@ export default function Register() {
 
                           {/* Price */}
                           <div style={{ marginBottom: 8 }}>
-                            <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1, color: lit ? '#EDE9FE' : C.text, transition: 'color 0.25s' }}>
+                            <span style={{ fontSize: 32, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1, color: lit ? '#EDE9FE' : C.text, transition: 'color 0.25s' }}>
                               {plan.price}
                             </span>
                             <span style={{ fontSize: 11, color: lit ? 'rgba(196,181,253,0.55)' : C.muted, marginLeft: 3, transition: 'color 0.25s' }}>
@@ -516,13 +527,13 @@ export default function Register() {
                           </div>
 
                           {/* Description */}
-                          <p style={{ fontSize: 11.5, color: lit ? 'rgba(196,181,253,0.65)' : C.muted, lineHeight: 1.55, margin: '0 0 16px', minHeight: 34, transition: 'color 0.25s' }}>
+                          <p style={{ fontSize: 11.5, color: lit ? 'rgba(196,181,253,0.65)' : C.muted, lineHeight: 1.55, margin: '0 0 16px', minHeight: 36, transition: 'color 0.25s' }}>
                             {plan.desc}
                           </p>
 
                           {/* CTA */}
                           <button type="button" onClick={e => { e.stopPropagation(); setSelectedPlan(plan.id) }}
-                            style={{ width: '100%', background: lit ? 'rgba(109,40,217,0.35)' : 'rgba(255,255,255,0.05)', border: `1px solid ${lit ? 'rgba(139,92,246,0.55)' : 'rgba(255,255,255,0.1)'}`, color: lit ? '#E9D5FF' : C.muted, borderRadius: 10, padding: '9px 0', fontSize: 12, fontWeight: 600, cursor: 'pointer', marginBottom: 16, letterSpacing: '0.01em', transition: 'all 0.25s' }}>
+                            style={{ width: '100%', background: lit ? 'rgba(109,40,217,0.35)' : 'rgba(255,255,255,0.05)', border: `1px solid ${lit ? 'rgba(139,92,246,0.55)' : 'rgba(255,255,255,0.1)'}`, color: lit ? '#E9D5FF' : C.muted, borderRadius: 10, padding: '10px 0', fontSize: 12, fontWeight: 600, cursor: 'pointer', marginBottom: 16, letterSpacing: '0.01em', transition: 'all 0.25s' }}>
                             {plan.cta}
                           </button>
 
@@ -533,7 +544,7 @@ export default function Register() {
                           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
                             {plan.features.map(f => (
                               <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11.5, color: lit ? 'rgba(224,213,255,0.82)' : C.muted, lineHeight: 1.3, transition: 'color 0.25s' }}>
-                                <PlanCheck accent={lit} />
+                                <PlanCheck accent={lit} founders={plan.founders} />
                                 {f}
                               </li>
                             ))}
@@ -542,19 +553,6 @@ export default function Register() {
                       </div>
                     )
                   })}
-                </div>
-
-                {/* Founders strip */}
-                <div style={{ position: 'relative', background: 'rgba(109,40,217,0.06)', border: '1px solid rgba(109,40,217,0.18)', borderRadius: 14, padding: '13px 18px 13px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 18, overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: 'linear-gradient(180deg, #7C3AED 0%, #4C1D95 100%)' }} />
-                  <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#C4B5FD', margin: '0 0 2px' }}>Founders rate — C$29/mo, locked in forever</p>
-                    <p style={{ fontSize: 11, color: C.muted, margin: 0 }}>Pro features at half price. 50 spots remaining.</p>
-                  </div>
-                  <button type="button" onClick={() => setSelectedPlan('founders')}
-                    style={{ flexShrink: 0, background: selectedPlan === 'founders' ? 'linear-gradient(135deg, #7C3AED, #5B21B6)' : 'transparent', border: '1px solid rgba(124,58,237,0.5)', color: selectedPlan === 'founders' ? '#fff' : '#A78BFA', borderRadius: 9, padding: '7px 15px', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                    {selectedPlan === 'founders' ? '✓ Claimed' : 'Claim spot'}
-                  </button>
                 </div>
 
                 {error && <div style={{ background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '11px 14px', color: C.error, fontSize: 13, marginBottom: 14 }}>{error}</div>}
@@ -601,11 +599,13 @@ function PlayIcon() { return <svg width="16" height="16" viewBox="0 0 24 24" fil
 function GoogleIcon() { return <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" /><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" /><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" /><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" /></svg> }
 function AppleIcon() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" /></svg> }
 function Spinner() { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style={{ animation: 'spin 0.8s linear infinite' }}><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" strokeOpacity="0.2" /><path d="M12 2a10 10 0 0110 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" /></svg> }
-function PlanCheck({ accent }: { accent?: boolean }) {
+function PlanCheck({ accent, founders }: { accent?: boolean; founders?: boolean }) {
+  const fill = founders && accent ? 'rgba(161,98,7,0.3)' : accent ? 'rgba(124,58,237,0.28)' : 'rgba(255,255,255,0.06)'
+  const stroke = founders && accent ? '#FCD34D' : accent ? '#A78BFA' : 'rgba(255,255,255,0.35)'
   return (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-      <circle cx="12" cy="12" r="10" fill={accent ? 'rgba(124,58,237,0.28)' : 'rgba(255,255,255,0.06)'} />
-      <path d="M8 12.5l2.5 2.5 5.5-5.5" stroke={accent ? '#A78BFA' : 'rgba(255,255,255,0.35)'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="12" cy="12" r="10" fill={fill} />
+      <path d="M8 12.5l2.5 2.5 5.5-5.5" stroke={stroke} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
