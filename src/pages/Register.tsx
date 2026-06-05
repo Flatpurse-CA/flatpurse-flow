@@ -137,6 +137,12 @@ export default function Register() {
           Log in
         </span>
       </p>
+
+      <p style={{ color: C.subtle, fontSize: 11, textAlign: 'center', marginTop: 28, lineHeight: 1.6 }}>
+        By continuing you agree to FlatPurse Flow's{' '}
+        <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Terms</span>{' '}and{' '}
+        <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Privacy Policy</span>.
+      </p>
     </form>
   )
 
@@ -181,7 +187,7 @@ export default function Register() {
       <div style={{ minHeight: '100vh', background: C.bg, fontFamily: "'DM Sans', system-ui, sans-serif", colorScheme: mode }}>
         <div style={{
           background: `linear-gradient(180deg, #6D28D9 0%, #4C1D95 40%, #1E0A3C 70%, ${C.bg} 100%)`,
-          padding: '56px 24px 80px',
+          padding: '20px 24px 80px',
         }}>
           {/* Logo + toggle on same row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 36 }}>
