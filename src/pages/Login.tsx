@@ -59,44 +59,42 @@ export default function Login() {
       colorScheme: mode,
       display: 'flex',
       flexDirection: 'column',
-      padding: '0 24px',
     }}>
 
-      {/* ── Logo + toggle ──────────────────────────────────────── */}
+      {/* ── Gradient banner ───────────────────────────────────── */}
       <div style={{
         flexShrink: 0,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        paddingTop: 'max(20px, env(safe-area-inset-top, 20px))',
-        paddingBottom: 0,
+        background: `linear-gradient(180deg, #6D28D9 0%, #4C1D95 40%, #1E0A3C 70%, ${C.bg} 100%)`,
+        padding: '16px 24px 28px',
       }}>
-        <img
-          src="/Flatpurse flow .svg"
-          alt="Flatpurse"
-          style={{ height: 28, width: 'auto', filter: mode === 'dark' ? 'brightness(0) invert(1)' : 'none' }}
-        />
-        <button
-          onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
-          style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: C.surface2, border: `1px solid ${C.border}`,
-            color: C.muted, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >
-          {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
-        </button>
-      </div>
-
-      {/* ── Main content — vertically centred ─────────────────── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', paddingBottom: 24 }}>
-
-        {/* Heading */}
-        <h1 style={{ color: C.text, fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+          <img
+            src="/Flatpurse flow .svg"
+            alt="Flatpurse"
+            style={{ height: 28, width: 'auto', filter: 'brightness(0) invert(1)' }}
+          />
+          <button
+            onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
+            style={{
+              width: 36, height: 36, borderRadius: 10,
+              background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
+              color: '#fff', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
+          </button>
+        </div>
+        <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 4 }}>
           Welcome back
         </h1>
-        <p style={{ color: C.muted, fontSize: 15, lineHeight: 1.5, margin: '0 0 28px' }}>
+        <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, lineHeight: 1.5, margin: 0 }}>
           Sign in to continue to your dashboard.
         </p>
+      </div>
+
+      {/* ── Form ─────────────────────────────────────────────── */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px', paddingBottom: 20 }}>
 
         <form onSubmit={handleSubmit}>
 
@@ -198,6 +196,7 @@ export default function Login() {
       <p style={{
         flexShrink: 0,
         color: C.subtle, fontSize: 11, textAlign: 'center', lineHeight: 1.6,
+        padding: '0 24px',
         paddingBottom: 'max(20px, env(safe-area-inset-bottom, 20px))',
         margin: 0,
       }}>
