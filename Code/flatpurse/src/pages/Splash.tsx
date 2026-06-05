@@ -1,25 +1,31 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 const STYLES = `
-  @keyframes fp-slide-in {
-    from { transform: translateX(110vw); }
-    to   { transform: translateX(0); }
+  @keyframes fp-reveal {
+    from { clip-path: inset(0 0 0 100%); }
+    to   { clip-path: inset(0 0 0 0%);   }
   }
-  @keyframes fp-logo-zoom {
-    from { transform: scale(1); opacity: 1; }
-    75%  { transform: scale(6); opacity: 1; }
-    to   { transform: scale(7); opacity: 0; }
+  @keyframes fp-zoom {
+    from { transform: scale(1);  opacity: 1; }
+    75%  { transform: scale(20); opacity: 1; }
+    to   { transform: scale(35); opacity: 0; }
   }
-  @keyframes fp-splash-out {
-    from { opacity: 1; }
-    to   { opacity: 0; }
+  @keyframes fp-out {
+    to { opacity: 0; pointer-events: none; }
   }
 `
 
 export default function Splash({ onDone }: { onDone: () => void }) {
+  const wrapRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
-    const t = setTimeout(onDone, 1950)
-    return () => clearTimeout(t)
+    // Must remove overflow:hidden from wrapper before zoom fires,
+    // otherwise the scale is clipped to the original logo bounds.
+    const t1 = setTimeout(() => {
+      if (wrapRef.current) wrapRef.current.style.overflow = 'visible'
+    }, 1950)
+    const t2 = setTimeout(onDone, 3500)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [onDone])
 
   return (
@@ -31,20 +37,23 @@ export default function Splash({ onDone }: { onDone: () => void }) {
           background: 'radial-gradient(ellipse 140% 55% at 50% 0%, #6D28D9 0%, #4C1D95 30%, #1E0A3C 60%, #09090B 85%)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           overflow: 'hidden',
-          animation: 'fp-splash-out 0.35s ease 1.6s forwards',
+          animation: 'fp-out 0.5s ease 2.9s forwards',
         }}
       >
-        {/* outer div: slides the logo from right to center */}
-        <div style={{ animation: 'fp-slide-in 0.65s cubic-bezier(0.22, 0.61, 0.36, 1) forwards' }}>
-          {/* inner img: zooms once settled */}
+        {/* wrapper: overflow hidden during reveal, switched to visible before zoom */}
+        <div ref={wrapRef} style={{ overflow: 'hidden', display: 'inline-block' }}>
           <img
             src="/Flatpurse flow .svg"
             alt="Flatpurse"
             style={{
-              height: 36,
+              height: 40,
               filter: 'brightness(0) invert(1)',
               display: 'block',
-              animation: 'fp-logo-zoom 0.75s cubic-bezier(0.4, 0, 0.8, 1) 0.8s forwards',
+              clipPath: 'inset(0 0 0 100%)',
+              animation: [
+                'fp-reveal 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards',
+                'fp-zoom   0.9s cubic-bezier(0.55, 0, 1, 0.45)  2.0s forwards',
+              ].join(', '),
             }}
           />
         </div>
