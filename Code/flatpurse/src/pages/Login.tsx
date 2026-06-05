@@ -55,7 +55,7 @@ export default function Login() {
     <div style={{
       height: '100dvh',
       background: mode === 'dark'
-        ? 'radial-gradient(ellipse 140% 55% at 50% 0%, #6200EE 0%, #3700B3 30%, #190040 60%, #09090B 85%)'
+        ? 'radial-gradient(ellipse 140% 55% at 50% 0%, #6D28D9 0%, #4C1D95 30%, #1E0A3C 60%, #09090B 85%)'
         : C.bg,
       fontFamily: "'DM Sans', system-ui, sans-serif",
       colorScheme: mode,
