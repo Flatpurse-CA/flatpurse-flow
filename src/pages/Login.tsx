@@ -58,20 +58,20 @@ export default function Login() {
       {/* ── Gradient banner ─────────────────────────────────────── */}
       <div style={{
         background: `linear-gradient(180deg, #6D28D9 0%, #4C1D95 40%, #1E0A3C 70%, ${C.bg} 100%)`,
-        padding: '20px 24px 80px',
+        padding: '16px 24px 28px',
         position: 'relative',
       }}>
         {/* Logo + toggle on same row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 36 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <img
             src="/Flatpurse flow .svg"
             alt="Flatpurse"
-            style={{ height: 32, width: 'auto', filter: 'brightness(0) invert(1)' }}
+            style={{ height: 30, width: 'auto', filter: 'brightness(0) invert(1)' }}
           />
           <button
             onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
             style={{
-              width: 36, height: 36, borderRadius: 8,
+              width: 34, height: 34, borderRadius: 8,
               background: 'rgba(255,255,255,0.12)',
               border: '1px solid rgba(255,255,255,0.2)',
               color: '#fff', cursor: 'pointer',
@@ -82,24 +82,24 @@ export default function Login() {
           </button>
         </div>
 
-        <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 8 }}>
+        <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 4 }}>
           Sign In Account
         </h1>
-        <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 15, lineHeight: 1.5 }}>
+        <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, lineHeight: 1.5, margin: 0 }}>
           Enter your credentials to access your dashboard.
         </p>
       </div>
 
       {/* ── Form ────────────────────────────────────────────────── */}
-      <div style={{ padding: '8px 24px 56px' }}>
+      <div style={{ padding: '12px 24px 20px' }}>
 
         {/* Social */}
-        <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+        <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
           {[{ icon: <GoogleIcon />, label: 'Google' }, { icon: <AppleIcon />, label: 'Apple' }].map(({ icon, label }) => (
             <button key={label} type="button" style={{
               flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               background: C.surface, border: `1px solid ${C.border}`,
-              borderRadius: 12, padding: '13px 16px',
+              borderRadius: 12, padding: '11px 16px',
               color: C.text, fontSize: 14, fontWeight: 500, cursor: 'pointer',
             }}>
               {icon}{label}
@@ -107,15 +107,15 @@ export default function Login() {
           ))}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
           <div style={{ flex: 1, height: 1, background: C.border }} />
           <span style={{ color: C.muted, fontSize: 13 }}>Or</span>
           <div style={{ flex: 1, height: 1, background: C.border }} />
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 8 }}>Email</label>
+          <div style={{ marginBottom: 10 }}>
+            <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Email</label>
             <input
               type="email" autoComplete="email" required
               value={email} onChange={e => setEmail(e.target.value)}
@@ -127,7 +127,7 @@ export default function Login() {
           </div>
 
           <div>
-            <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 8 }}>Password</label>
+            <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Password</label>
             <div style={{ position: 'relative' }}>
               <input
                 type={showPassword ? 'text' : 'password'} autoComplete="current-password" required
@@ -155,7 +155,7 @@ export default function Login() {
           )}
 
           <button type="submit" disabled={loading} style={{
-            width: '100%', marginTop: 24,
+            width: '100%', marginTop: 14,
             background: loading ? C.surface2 : C.submitBg,
             color: loading ? C.muted : C.submitText,
             border: 'none', borderRadius: 12, padding: '15px',
@@ -166,14 +166,14 @@ export default function Login() {
           </button>
         </form>
 
-        <p style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 24 }}>
+        <p style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 14 }}>
           Don't have an account?{' '}
           <span onClick={() => navigate('/register')} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>
             Create one
           </span>
         </p>
 
-        <p style={{ color: C.subtle, fontSize: 11, textAlign: 'center', marginTop: 28, lineHeight: 1.6 }}>
+        <p style={{ color: C.subtle, fontSize: 11, textAlign: 'center', marginTop: 12, lineHeight: 1.6 }}>
           By continuing you agree to FlatPurse Flow's{' '}
           <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Terms</span>{' '}and{' '}
           <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Privacy Policy</span>.

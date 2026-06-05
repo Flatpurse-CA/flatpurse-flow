@@ -54,9 +54,9 @@ export default function Register() {
   const form = (
     <form onSubmit={handleSubmit}>
       {/* First + Last name row */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 18 }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
         <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 8 }}>First Name</label>
+          <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>First Name</label>
           <input
             type="text" autoComplete="given-name" required
             value={firstName} onChange={e => setFirstName(e.target.value)}
@@ -67,7 +67,7 @@ export default function Register() {
           />
         </div>
         <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 8 }}>Last Name</label>
+          <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Last Name</label>
           <input
             type="text" autoComplete="family-name" required
             value={lastName} onChange={e => setLastName(e.target.value)}
@@ -79,8 +79,8 @@ export default function Register() {
         </div>
       </div>
 
-      <div style={{ marginBottom: 18 }}>
-        <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 8 }}>Email</label>
+      <div style={{ marginBottom: 10 }}>
+        <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Email</label>
         <input
           type="email" autoComplete="email" required
           value={email} onChange={e => setEmail(e.target.value)}
@@ -92,7 +92,7 @@ export default function Register() {
       </div>
 
       <div>
-        <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 8 }}>Password</label>
+        <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Password</label>
         <div style={{ position: 'relative' }}>
           <input
             type={showPassword ? 'text' : 'password'} autoComplete="new-password" required
@@ -120,7 +120,7 @@ export default function Register() {
       )}
 
       <button type="submit" disabled={loading} style={{
-        width: '100%', marginTop: 26,
+        width: '100%', marginTop: 14,
         background: loading ? C.surface2 : C.submitBg,
         color: loading ? C.muted : C.submitText,
         border: 'none', borderRadius: 12, padding: '14px',
@@ -131,14 +131,14 @@ export default function Register() {
         {loading ? <><Spinner />Creating account…</> : 'Sign Up'}
       </button>
 
-      <p style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 24 }}>
+      <p style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 14 }}>
         Already have an account?{' '}
         <span onClick={() => navigate('/login')} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>
           Log in
         </span>
       </p>
 
-      <p style={{ color: C.subtle, fontSize: 11, textAlign: 'center', marginTop: 28, lineHeight: 1.6 }}>
+      <p style={{ color: C.subtle, fontSize: 11, textAlign: 'center', marginTop: 12, lineHeight: 1.6 }}>
         By continuing you agree to FlatPurse Flow's{' '}
         <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Terms</span>{' '}and{' '}
         <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Privacy Policy</span>.
@@ -160,11 +160,11 @@ export default function Register() {
 
   const socials = (
     <>
-      <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
         {[{ icon: <GoogleIcon />, label: 'Google' }, { icon: <AppleIcon />, label: 'Apple' }].map(({ icon, label }) => (
           <button key={label} type="button" style={{
             flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            background: C.socialBg, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 16px',
+            background: C.socialBg, border: `1px solid ${C.border}`, borderRadius: 10, padding: '11px 16px',
             color: C.text, fontSize: 14, fontWeight: 500, cursor: 'pointer', transition: 'background 0.15s',
           }}
             onMouseEnter={e => (e.currentTarget.style.background = C.socialHover)}
@@ -173,7 +173,7 @@ export default function Register() {
           </button>
         ))}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
         <div style={{ flex: 1, height: 1, background: C.border }} />
         <span style={{ color: C.muted, fontSize: 13 }}>Or</span>
         <div style={{ flex: 1, height: 1, background: C.border }} />
@@ -187,26 +187,26 @@ export default function Register() {
       <div style={{ minHeight: '100vh', background: C.bg, fontFamily: "'DM Sans', system-ui, sans-serif", colorScheme: mode }}>
         <div style={{
           background: `linear-gradient(180deg, #6D28D9 0%, #4C1D95 40%, #1E0A3C 70%, ${C.bg} 100%)`,
-          padding: '20px 24px 80px',
+          padding: '16px 24px 28px',
         }}>
           {/* Logo + toggle on same row */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 36 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <img
               src="/Flatpurse flow .svg"
               alt="Flatpurse"
-              style={{ height: 32, width: 'auto', filter: 'brightness(0) invert(1)' }}
+              style={{ height: 30, width: 'auto', filter: 'brightness(0) invert(1)' }}
             />
             <button onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
-              style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
             </button>
           </div>
 
-          <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 8 }}>Sign Up Account</h1>
-          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 15, lineHeight: 1.5 }}>Enter your personal data to create your account.</p>
+          <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 4 }}>Sign Up Account</h1>
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14, lineHeight: 1.5, margin: 0 }}>Enter your personal data to create your account.</p>
         </div>
 
-        <div style={{ padding: '8px 24px 56px' }}>
+        <div style={{ padding: '12px 24px 20px' }}>
           {socials}
           {form}
         </div>
