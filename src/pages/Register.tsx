@@ -182,23 +182,24 @@ export default function Register() {
         <div style={{
           background: `linear-gradient(180deg, #6D28D9 0%, #4C1D95 40%, #1E0A3C 70%, ${C.bg} 100%)`,
           padding: '56px 24px 80px',
-          textAlign: 'center',
           position: 'relative',
         }}>
-          <div style={{ position: 'absolute', top: 16, right: 16, display: 'flex', gap: 8 }}>
-            <button onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
-              style={{ width: 34, height: 34, borderRadius: 8, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
-            </button>
-            <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.accent, borderRadius: 8, padding: '0 12px', height: 34, color: '#fff', fontSize: 12, fontWeight: 600, textDecoration: 'none' }}>
-              <DownloadIcon />Download
-            </a>
+          {/* Logo — top left */}
+          <div style={{ marginBottom: 40 }}>
+            <img
+              src="/Flatpurse flow .svg"
+              alt="Flatpurse"
+              style={{ height: 32, width: 'auto', filter: 'brightness(0) invert(1)' }}
+            />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 32 }}>
-            <BoltIcon />
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: 18, letterSpacing: '-0.02em' }}>FlatPurse<br /><span style={{ fontWeight: 400, fontSize: 14, opacity: 0.8 }}>Flow</span></span>
-          </div>
-          <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 10 }}>Sign Up Account</h1>
+
+          {/* Mode toggle only — top right */}
+          <button onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
+            style={{ position: 'absolute', top: 20, right: 20, width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
+          </button>
+
+          <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 8 }}>Sign Up Account</h1>
           <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 15, lineHeight: 1.5 }}>Enter your personal data to create your account.</p>
         </div>
 
