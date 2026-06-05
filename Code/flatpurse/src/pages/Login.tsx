@@ -61,29 +61,26 @@ export default function Login() {
         padding: '56px 24px 80px',
         position: 'relative',
       }}>
-        {/* Logo — top left */}
-        <div style={{ marginBottom: 40 }}>
+        {/* Logo + toggle on same row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 36 }}>
           <img
             src="/Flatpurse flow .svg"
             alt="Flatpurse"
             style={{ height: 32, width: 'auto', filter: 'brightness(0) invert(1)' }}
           />
+          <button
+            onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
+            style={{
+              width: 36, height: 36, borderRadius: 8,
+              background: 'rgba(255,255,255,0.12)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              color: '#fff', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
+          </button>
         </div>
-
-        {/* Mode toggle — top right only */}
-        <button
-          onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
-          style={{
-            position: 'absolute', top: 20, right: 20,
-            width: 36, height: 36, borderRadius: 8,
-            background: 'rgba(255,255,255,0.12)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            color: '#fff', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >
-          {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
-        </button>
 
         <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 8 }}>
           Sign In Account
