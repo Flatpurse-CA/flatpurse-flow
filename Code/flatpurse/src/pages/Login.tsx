@@ -58,7 +58,7 @@ export default function Login() {
       {/* ── Gradient banner ─────────────────────────────────────── */}
       <div style={{
         background: `linear-gradient(180deg, #6D28D9 0%, #4C1D95 40%, #1E0A3C 70%, ${C.bg} 100%)`,
-        padding: '56px 24px 80px',
+        padding: '20px 24px 80px',
         position: 'relative',
       }}>
         {/* Logo + toggle on same row */}
@@ -171,6 +171,12 @@ export default function Login() {
           <span onClick={() => navigate('/register')} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>
             Create one
           </span>
+        </p>
+
+        <p style={{ color: C.subtle, fontSize: 11, textAlign: 'center', marginTop: 28, lineHeight: 1.6 }}>
+          By continuing you agree to FlatPurse Flow's{' '}
+          <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Terms</span>{' '}and{' '}
+          <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Privacy Policy</span>.
         </p>
       </div>
     </div>
