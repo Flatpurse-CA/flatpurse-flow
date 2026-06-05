@@ -182,22 +182,19 @@ export default function Register() {
         <div style={{
           background: `linear-gradient(180deg, #6D28D9 0%, #4C1D95 40%, #1E0A3C 70%, ${C.bg} 100%)`,
           padding: '56px 24px 80px',
-          position: 'relative',
         }}>
-          {/* Logo — top left */}
-          <div style={{ marginBottom: 40 }}>
+          {/* Logo + toggle on same row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 36 }}>
             <img
               src="/Flatpurse flow .svg"
               alt="Flatpurse"
               style={{ height: 32, width: 'auto', filter: 'brightness(0) invert(1)' }}
             />
+            <button onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
+              style={{ width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
+            </button>
           </div>
-
-          {/* Mode toggle only — top right */}
-          <button onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
-            style={{ position: 'absolute', top: 20, right: 20, width: 36, height: 36, borderRadius: 8, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
-          </button>
 
           <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 8 }}>Sign Up Account</h1>
           <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 15, lineHeight: 1.5 }}>Enter your personal data to create your account.</p>
