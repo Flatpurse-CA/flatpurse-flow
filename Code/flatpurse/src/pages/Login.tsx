@@ -321,7 +321,10 @@ export default function Login() {
 
             <p style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 24 }}>
               Don't have an account?{' '}
-              <span style={{ color: C.text, fontWeight: 600, cursor: 'pointer' }}>Contact us</span>
+              <span
+                onClick={() => navigate('/register')}
+                style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}
+              >Create one</span>
             </p>
           </div>
         </div>
