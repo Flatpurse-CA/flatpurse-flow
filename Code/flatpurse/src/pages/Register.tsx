@@ -82,6 +82,7 @@ export default function Register() {
   const [selectedPlan, setSelectedPlan] = useState('starter')
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null)
   const [showDownloadModal, setShowDownloadModal] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
   const [carouselIdx, setCarouselIdx] = useState(0)
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -283,7 +284,7 @@ export default function Register() {
         <div style={{ flexShrink: 0, textAlign: 'center', padding: '0 24px', paddingBottom: 'max(20px, env(safe-area-inset-bottom, 20px))' }}>
           <p style={{ color: C.muted, fontSize: 13, marginBottom: 8 }}>
             Already have an account?{' '}
-            <span onClick={() => navigate('/login')} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>
+            <span onClick={() => setShowLoginModal(true)} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>
               Log in
             </span>
           </p>
@@ -374,6 +375,39 @@ export default function Register() {
                 </a>
                 <a href="#" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: C.surface2, color: C.text, border: `1px solid ${C.border}`, borderRadius: 14, padding: '14px 20px', textDecoration: 'none', fontWeight: 600, fontSize: 15 }}>
                   <PlayIcon />Get it on Google Play
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Login → download modal */}
+      {showLoginModal && (
+        <div onClick={() => setShowLoginModal(false)} style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div onClick={e => e.stopPropagation()} style={{ position: 'relative', width: '100%', maxWidth: 400, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 24, padding: '40px 36px 36px', textAlign: 'center', overflow: 'hidden' }}>
+            {/* Purple bloom */}
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '55%', background: 'radial-gradient(ellipse 120% 80% at 50% 100%, rgba(109,40,217,0.28) 0%, rgba(76,29,149,0.12) 50%, transparent 80%)', pointerEvents: 'none' }} />
+            {/* Close */}
+            <button onClick={() => setShowLoginModal(false)} style={{ position: 'absolute', top: 16, right: 16, width: 32, height: 32, borderRadius: 8, background: C.surface2, border: `1px solid ${C.border}`, color: C.muted, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+            </button>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <img src="/Flatpurse flow .svg" alt="Flatpurse" style={{ height: 26, marginBottom: 24, filter: mode === 'dark' ? 'brightness(0) invert(1)' : 'none' }} />
+              {/* Phone icon */}
+              <div style={{ width: 60, height: 60, borderRadius: 16, background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px', boxShadow: '0 10px 28px rgba(109,40,217,0.4)' }}>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="#fff" strokeWidth="1.8"/><circle cx="12" cy="17.5" r="1" fill="#fff"/></svg>
+              </div>
+              <h2 style={{ color: C.text, fontSize: 20, fontWeight: 800, letterSpacing: '-0.025em', margin: '0 0 8px' }}>Sign in on the app</h2>
+              <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.6, margin: '0 0 28px' }}>
+                Flatpurse Flow is a mobile-first experience.<br />Download the app to sign in to your account.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <a href="#" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: C.text, color: C.bg, borderRadius: 13, padding: '14px 20px', textDecoration: 'none', fontWeight: 700, fontSize: 14 }}>
+                  <AppleIcon />App Store
+                </a>
+                <a href="#" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: C.surface2, color: C.text, border: `1px solid ${C.border}`, borderRadius: 13, padding: '14px 20px', textDecoration: 'none', fontWeight: 600, fontSize: 14 }}>
+                  <PlayIcon />Google Play
                 </a>
               </div>
             </div>
@@ -517,7 +551,7 @@ export default function Register() {
                 </div>
                 <p style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 20, ...fadeUp(360) }}>
                   Already have an account?{' '}
-                  <span onClick={() => navigate('/login')} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>Log in</span>
+                  <span onClick={() => setShowLoginModal(true)} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>Log in</span>
                 </p>
               </>
             )}
