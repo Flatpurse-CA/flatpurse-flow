@@ -546,7 +546,7 @@ export default function Register() {
                         onClick={() => setSelectedPlan(plan.id)}
                         onMouseEnter={() => setHoveredPlan(plan.id)}
                         onMouseLeave={() => setHoveredPlan(null)}
-                        style={{ position: 'relative', background: mode === 'dark' ? 'rgba(255,255,255,0.03)' : lit ? (plan.founders ? '#FFFBEB' : '#F5F3FF') : C.surface, border: `1px solid ${sel ? 'rgba(124,58,237,0.6)' : mode === 'dark' ? 'rgba(255,255,255,0.08)' : C.border}`, borderRadius: 0, padding: '22px 18px 20px', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.25s, background 0.25s', boxShadow: sel ? '0 0 0 1px rgba(124,58,237,0.3), 0 16px 48px rgba(109,40,217,0.25)' : 'none', ...fadeUp(80 + pi * 70) }}>
+                        style={{ position: 'relative', background: mode === 'dark' ? 'rgba(255,255,255,0.03)' : lit ? (plan.founders ? '#FFFBEB' : '#F5F3FF') : C.surface, border: `1px solid ${sel ? 'rgba(124,58,237,0.6)' : mode === 'dark' ? 'rgba(255,255,255,0.08)' : C.border}`, borderRadius: 0, padding: '22px 18px 20px', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.25s, background 0.25s', boxShadow: sel && mode === 'dark' ? '0 0 0 1px rgba(124,58,237,0.3), 0 16px 48px rgba(109,40,217,0.25)' : 'none', ...fadeUp(80 + pi * 70) }}>
 
                         {/* Bottom-bloom gradient overlay — dark mode only */}
                         <div style={{ position: 'absolute', inset: 0, background: plan.founders
