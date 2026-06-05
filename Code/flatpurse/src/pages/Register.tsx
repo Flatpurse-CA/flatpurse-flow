@@ -353,8 +353,8 @@ export default function Register() {
         </div>
       )}
 
-      {/* Left panel — step 1, or animating out during transition */}
-      {(step === 1 || transitioning) && (
+      {/* Left panel — step 1 only (step hasn't changed yet during exit animation) */}
+      {step === 1 && (
         <div style={{ width: '45%', minWidth: 420, position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '48px 44px', overflow: 'hidden', animation: transitioning ? 'fp-panel-out 0.36s cubic-bezier(0.4,0,1,1) forwards' : 'none' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 60% 10%, #7C3AED 0%, #4C1D95 35%, #1A0A2E 65%, #09090B 100%)', borderRadius: 20, margin: 12 }} />
           <div style={{ position: 'absolute', inset: 0, margin: 12, borderRadius: 20, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")` }} />
