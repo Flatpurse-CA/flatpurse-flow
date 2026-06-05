@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import BottomNav from './components/BottomNav'
@@ -85,6 +85,18 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  // Blur any focused input when the app goes to background so iOS
+  // doesn't restore that focus (and pop the keyboard) on next open.
+  useEffect(() => {
+    const onHide = () => {
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur()
+      }
+    }
+    document.addEventListener('visibilitychange', onHide)
+    return () => document.removeEventListener('visibilitychange', onHide)
+  }, [])
+
   const [splashDone, setSplashDone] = useState(() => {
     const isMobile = window.innerWidth < 768
     if (!isMobile) return true
