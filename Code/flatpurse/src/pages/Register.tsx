@@ -509,6 +509,13 @@ export default function Register() {
                           ? 'radial-gradient(ellipse 140% 60% at 50% 100%, rgba(161,98,7,0.6) 0%, rgba(120,53,15,0.35) 40%, rgba(9,9,11,0) 75%)'
                           : 'radial-gradient(ellipse 140% 60% at 50% 100%, #6D28D9 0%, #4C1D95 28%, #1E0A3C 58%, rgba(9,9,11,0) 85%)', opacity: lit ? 1 : 0, transition: 'opacity 0.35s ease', pointerEvents: 'none' }} />
 
+                        {/* Selected check — top right */}
+                        {sel && (
+                          <div style={{ position: 'absolute', top: 14, right: 14, zIndex: 2, width: 22, height: 22, borderRadius: '50%', background: plan.founders ? 'rgba(161,98,7,0.5)' : 'rgba(109,40,217,0.5)', border: `1.5px solid ${plan.founders ? 'rgba(217,160,30,0.8)' : 'rgba(139,92,246,0.8)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke={plan.founders ? '#FDE68A' : '#C4B5FD'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          </div>
+                        )}
+
                         {/* Content */}
                         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
 
@@ -537,46 +544,15 @@ export default function Register() {
                           </div>
 
                           {/* Description */}
-                          <p style={{ fontSize: 11.5, color: lit ? 'rgba(196,181,253,0.65)' : C.muted, lineHeight: 1.55, margin: '0 0 16px', minHeight: 36, transition: 'color 0.25s' }}>
+                          <p style={{ fontSize: 11.5, color: lit ? 'rgba(196,181,253,0.65)' : C.muted, lineHeight: 1.55, margin: '0 0 14px', minHeight: 36, transition: 'color 0.25s' }}>
                             {plan.desc}
                           </p>
-
-                          {/* CTA — selects plan and submits */}
-                          <button type="button" disabled={loading} onClick={async e => {
-                            e.stopPropagation()
-                            setSelectedPlan(plan.id)
-                            setError(null); setLoading(true)
-                            try {
-                              await register({ firstName, lastName, email, password, phone, businessName: shopName, businessType: businessType ?? '', city, province, plan: plan.id })
-                              setShowDownloadModal(true)
-                            } catch (err) {
-                              setError(err instanceof Error ? err.message : 'Registration failed')
-                            } finally { setLoading(false) }
-                          }}
-                            style={{
-                              width: '100%',
-                              background: loading && selectedPlan === plan.id
-                                ? C.surface2
-                                : lit
-                                  ? plan.founders ? 'rgba(161,98,7,0.45)' : 'rgba(109,40,217,0.35)'
-                                  : 'rgba(255,255,255,0.05)',
-                              border: `1px solid ${lit
-                                ? plan.founders ? 'rgba(217,160,30,0.65)' : 'rgba(139,92,246,0.55)'
-                                : 'rgba(255,255,255,0.1)'}`,
-                              color: lit ? plan.founders ? '#FDE68A' : '#E9D5FF' : C.muted,
-                              borderRadius: 10, padding: '10px 0', fontSize: 12, fontWeight: 600,
-                              cursor: loading ? 'default' : 'pointer', marginBottom: 16,
-                              letterSpacing: '0.01em', transition: 'all 0.25s',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                            }}>
-                            {loading && selectedPlan === plan.id ? <><Spinner />Creating…</> : plan.cta}
-                          </button>
 
                           {/* Divider */}
                           <div style={{ height: 1, background: lit ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)', marginBottom: 13, transition: 'background 0.25s' }} />
 
                           {/* Features */}
-                          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+                          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 18px', display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
                             {plan.features.map(f => (
                               <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11.5, color: lit ? 'rgba(224,213,255,0.82)' : C.muted, lineHeight: 1.3, transition: 'color 0.25s' }}>
                                 <PlanCheck accent={lit} founders={plan.founders} />
@@ -584,6 +560,34 @@ export default function Register() {
                               </li>
                             ))}
                           </ul>
+
+                          {/* CTA — only shows when selected, submits */}
+                          {sel && (
+                            <button type="button" disabled={loading} onClick={async e => {
+                              e.stopPropagation()
+                              setError(null); setLoading(true)
+                              try {
+                                await register({ firstName, lastName, email, password, phone, businessName: shopName, businessType: businessType ?? '', city, province, plan: plan.id })
+                                setShowDownloadModal(true)
+                              } catch (err) {
+                                setError(err instanceof Error ? err.message : 'Registration failed')
+                              } finally { setLoading(false) }
+                            }}
+                              style={{
+                                width: '100%',
+                                background: loading
+                                  ? C.surface2
+                                  : plan.founders ? 'rgba(161,98,7,0.5)' : 'rgba(109,40,217,0.45)',
+                                border: `1px solid ${plan.founders ? 'rgba(217,160,30,0.7)' : 'rgba(139,92,246,0.65)'}`,
+                                color: plan.founders ? '#FDE68A' : '#E9D5FF',
+                                borderRadius: 8, padding: '11px 0', fontSize: 13, fontWeight: 700,
+                                cursor: loading ? 'default' : 'pointer',
+                                letterSpacing: '0.01em',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                              }}>
+                              {loading ? <><Spinner />Creating…</> : plan.cta}
+                            </button>
+                          )}
                         </div>
                       </div>
                     )
