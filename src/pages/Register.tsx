@@ -346,11 +346,21 @@ export default function Register() {
 
       {/* Right panel */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* Top bar — logo visible only when left panel is hidden */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: step === 1 ? 'flex-end' : 'space-between', padding: '20px 32px', gap: 10, flexShrink: 0 }}>
-          {step > 1 && (
-            <img src="/Flatpurse flow .svg" alt="Flatpurse" style={{ height: 26, filter: mode === 'dark' ? 'brightness(0) invert(1)' : 'none' }} />
-          )}
+        {/* Top bar */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 32px', gap: 10, flexShrink: 0 }}>
+          {/* Left side: logo (steps 2+) + back button (steps 2+) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            {step > 1 && (
+              <img src="/Flatpurse flow .svg" alt="Flatpurse" style={{ height: 26, filter: mode === 'dark' ? 'brightness(0) invert(1)' : 'none' }} />
+            )}
+            {step > 1 && (
+              <button onClick={() => setStep(s => (s - 1) as 1|2|3)}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 14px', color: C.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                Back
+              </button>
+            )}
+          </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
             <button onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 8, background: C.surface2, border: `1px solid ${C.border}`, color: C.muted, cursor: 'pointer' }}>
@@ -468,9 +478,8 @@ export default function Register() {
                     </select>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 12, marginTop: 26 }}>
-                  <button type="button" onClick={() => setStep(1)} style={{ flex: 1, background: C.surface2, color: C.muted, border: `1px solid ${C.border}`, borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>← Back</button>
-                  <button type="button" onClick={() => setStep(3)} style={{ flex: 2, background: C.submitBg, color: C.submitText, border: 'none', borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <div style={{ marginTop: 26 }}>
+                  <button type="button" onClick={() => setStep(3)} style={{ width: '100%', background: C.submitBg, color: C.submitText, border: 'none', borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                     Next Step <ArrowRightIcon />
                   </button>
                 </div>
@@ -580,11 +589,7 @@ export default function Register() {
                   })}
                 </div>
 
-                {error && <div style={{ background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '11px 14px', color: C.error, fontSize: 13, marginBottom: 12 }}>{error}</div>}
-
-                <button type="button" onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: C.muted, fontSize: 13, cursor: 'pointer', padding: '4px 0' }}>
-                  ← Back to shop details
-                </button>
+                {error && <div style={{ background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '11px 14px', color: C.error, fontSize: 13, marginTop: 4 }}>{error}</div>}
               </>
             )}
           </div>
