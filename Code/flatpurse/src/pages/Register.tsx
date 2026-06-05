@@ -9,7 +9,16 @@ const steps = [
   { n: 3, label: 'Choose your plan' },
 ]
 
-const CAROUSEL_IMGS = ['/sd1.jpg','/sd2.jpg','/sd3.jpg','/sd4.jpg','/sd5.jpg','/sd6.jpg','/sd7.jpg','/sd8.jpg']
+const SLIDES = [
+  { img: '/sd1.jpg', heading: 'Run Your Salon, Stress-Free', sub: 'Bookings, payments, and staff — all in one place.' },
+  { img: '/sd2.jpg', heading: 'Get Paid, Every Time', sub: 'Accept Tap to Pay and instant bank transfers.' },
+  { img: '/sd3.jpg', heading: 'Your Clients, Your Brand', sub: 'Beautiful booking pages that represent your business.' },
+  { img: '/sd4.jpg', heading: 'Never Miss a Beat', sub: 'Automated reminders so your chair stays full.' },
+  { img: '/sd5.jpg', heading: 'Grow With Confidence', sub: 'Real-time reports on every appointment and dollar.' },
+  { img: '/sd6.jpg', heading: 'AutoPilot Your Business', sub: 'Let AI handle the routine so you can focus on craft.' },
+  { img: '/sd7.jpg', heading: 'Trusted by Pros', sub: 'Thousands of stylists and barbers already love Flatpurse.' },
+  { img: '/sd8.jpg', heading: 'Your Shop, Everywhere', sub: 'Manage everything from any device, anytime.' },
+]
 const BUSINESS_TYPES = ['Barbershop','Hair Salon','Nail Studio','Lash Studio','Brow Bar','Spa/Wellness','Beauty Studio','Multi-service']
 const PROVINCES = ['AB','BC','MB','NB','NL','NS','NT','NU','ON','PE','QC','SK','YT']
 const PRICING = [
@@ -82,7 +91,7 @@ export default function Register() {
   }, [])
 
   useEffect(() => {
-    const id = setInterval(() => setCarouselIdx(i => (i + 1) % CAROUSEL_IMGS.length), 4000)
+    const id = setInterval(() => setCarouselIdx(i => (i + 1) % SLIDES.length), 4000)
     return () => clearInterval(id)
   }, [])
 
@@ -372,42 +381,36 @@ export default function Register() {
         </div>
       )}
 
-      {/* Left panel — step 1 only */}
+      {/* Left panel — step 1 only, full-bleed photo */}
       {step === 1 && (
-        <div style={{ width: '45%', minWidth: 420, position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '48px 44px', overflow: 'hidden', animation: transitioning ? 'fp-panel-out 0.36s cubic-bezier(0.4,0,1,1) forwards' : 'fp-panel-in 0.42s cubic-bezier(0.16,1,0.3,1) both' }}>
+        <div style={{ width: '45%', minWidth: 420, flexShrink: 0, position: 'relative', margin: 12, borderRadius: 20, overflow: 'hidden', animation: transitioning ? 'fp-panel-out 0.36s cubic-bezier(0.4,0,1,1) forwards' : 'fp-panel-in 0.42s cubic-bezier(0.16,1,0.3,1) both' }}>
 
-          {/* Photo carousel — beneath gradient */}
-          {CAROUSEL_IMGS.map((src, i) => (
-            <img key={src} src={src} alt="" style={{ position: 'absolute', inset: 0, margin: 12, borderRadius: 20, width: 'calc(100% - 24px)', height: 'calc(100% - 24px)', objectFit: 'cover', objectPosition: 'center top', opacity: i === carouselIdx ? 1 : 0, transition: 'opacity 1.2s ease', zIndex: 0 }} />
+          {/* Full-bleed photos */}
+          {SLIDES.map((slide, i) => (
+            <img key={slide.img} src={slide.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', opacity: i === carouselIdx ? 1 : 0, transition: 'opacity 1.2s ease' }} />
           ))}
 
-          {/* Gradient overlay */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, rgba(109,40,217,0.82) 0%, rgba(76,29,149,0.5) 45%, rgba(9,9,11,0.9) 100%)', borderRadius: 20, margin: 12, zIndex: 1 }} />
-
-          {/* Noise texture */}
-          <div style={{ position: 'absolute', inset: 0, margin: 12, borderRadius: 20, zIndex: 2, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")` }} />
+          {/* Scrim — dark at bottom for text, subtle at top */}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, transparent 35%, transparent 40%, rgba(0,0,0,0.78) 100%)', pointerEvents: 'none' }} />
 
           {/* Logo */}
-          <div style={{ position: 'absolute', top: 44, left: 44, zIndex: 3 }}>
-            <img src="/Flatpurse flow .svg" alt="Flatpurse" style={{ height: 36, width: 'auto', filter: 'brightness(0) invert(1)' }} />
+          <div style={{ position: 'absolute', top: 32, left: 32, zIndex: 2 }}>
+            <img src="/Flatpurse flow .svg" alt="Flatpurse" style={{ height: 28, width: 'auto', filter: 'brightness(0) invert(1)' }} />
           </div>
 
-          {/* Content */}
-          <div style={{ position: 'relative', zIndex: 3 }}>
-            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12, fontWeight: 500, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 10 }}>Get Started</p>
-            <h2 style={{ color: '#fff', fontSize: 30, fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.2, marginBottom: 32 }}>Get Started<br />with Us</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {steps.map((s, i) => (
-                <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: 14, background: i === step - 1 ? C.cardActiveBg : C.cardBg, border: i === step - 1 ? 'none' : `1px solid ${C.cardBorder}`, backdropFilter: 'blur(12px)', borderRadius: 14, padding: '13px 18px' }}>
-                  <span style={{ width: 26, height: 26, borderRadius: '50%', flexShrink: 0, background: i === step - 1 ? C.cardActiveNumBg : 'rgba(255,255,255,0.15)', color: i === step - 1 ? C.cardActiveNum : 'rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>{s.n}</span>
-                  <span style={{ fontSize: 14, fontWeight: 500, color: i === step - 1 ? C.cardActiveText : 'rgba(255,255,255,0.7)' }}>{s.label}</span>
-                </div>
-              ))}
+          {/* Text + dots overlay at bottom */}
+          <div style={{ position: 'absolute', bottom: 40, left: 36, right: 36, zIndex: 2 }}>
+            <div key={carouselIdx} style={{ animation: 'fp-fade-up 0.5s cubic-bezier(0.16,1,0.3,1) both' }}>
+              <h2 style={{ color: '#fff', fontSize: 26, fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.3, margin: '0 0 10px' }}>
+                {SLIDES[carouselIdx].heading}
+              </h2>
+              <p style={{ color: 'rgba(255,255,255,0.62)', fontSize: 13, lineHeight: 1.6, margin: '0 0 22px' }}>
+                {SLIDES[carouselIdx].sub}
+              </p>
             </div>
-            {/* Carousel dot indicators */}
-            <div style={{ display: 'flex', gap: 5, marginTop: 24 }}>
-              {CAROUSEL_IMGS.map((_, i) => (
-                <button key={i} onClick={() => setCarouselIdx(i)} style={{ width: i === carouselIdx ? 18 : 6, height: 6, borderRadius: 100, background: i === carouselIdx ? '#fff' : 'rgba(255,255,255,0.3)', border: 'none', cursor: 'pointer', padding: 0, transition: 'all 0.3s ease' }} />
+            <div style={{ display: 'flex', gap: 6 }}>
+              {SLIDES.map((_, i) => (
+                <button key={i} onClick={() => setCarouselIdx(i)} style={{ width: i === carouselIdx ? 22 : 6, height: 6, borderRadius: 100, background: i === carouselIdx ? '#A78BFA' : 'rgba(255,255,255,0.35)', border: 'none', cursor: 'pointer', padding: 0, transition: 'all 0.3s ease' }} />
               ))}
             </div>
           </div>
