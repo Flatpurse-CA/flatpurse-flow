@@ -56,6 +56,7 @@ export default function Register() {
   const [city, setCity] = useState('')
   const [province, setProvince] = useState('')
   const [selectedPlan, setSelectedPlan] = useState('starter')
+  const [hoveredPlan, setHoveredPlan] = useState<string | null>(null)
 
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -428,64 +429,68 @@ export default function Register() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 14, alignItems: 'stretch' }}>
                   {PRICING.map(plan => {
                     const sel = selectedPlan === plan.id
-                    const bg = plan.popular
-                      ? 'linear-gradient(155deg, #3B1A9A 0%, #1A0850 55%, #0C0320 100%)'
-                      : plan.id === 'unlimited'
-                      ? 'linear-gradient(155deg, rgba(22,12,44,0.95) 0%, rgba(6,3,14,0.98) 100%)'
-                      : 'rgba(255,255,255,0.03)'
-                    const shadow = plan.popular
-                      ? sel ? '0 0 0 2px #7C3AED, 0 20px 56px rgba(109,40,217,0.55)' : '0 16px 48px rgba(109,40,217,0.38), 0 0 0 1px rgba(139,92,246,0.35)'
-                      : sel ? '0 0 0 2px #7C3AED' : 'none'
-                    const border = plan.popular ? 'none' : `1px solid ${sel ? 'rgba(124,58,237,0.55)' : 'rgba(255,255,255,0.08)'}`
+                    const hot = hoveredPlan === plan.id
+                    const lit = sel || hot
                     return (
-                      <div key={plan.id} onClick={() => setSelectedPlan(plan.id)}
-                        style={{ position: 'relative', background: bg, border, borderRadius: 18, padding: '20px 16px 18px', cursor: 'pointer', transition: 'box-shadow 0.2s', boxShadow: shadow, transform: plan.popular ? 'scale(1.03)' : 'none', display: 'flex', flexDirection: 'column' }}>
+                      <div key={plan.id}
+                        onClick={() => setSelectedPlan(plan.id)}
+                        onMouseEnter={() => setHoveredPlan(plan.id)}
+                        onMouseLeave={() => setHoveredPlan(null)}
+                        style={{ position: 'relative', background: 'rgba(255,255,255,0.03)', border: `1px solid ${sel ? 'rgba(124,58,237,0.6)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 18, padding: '20px 16px 18px', cursor: 'pointer', overflow: 'hidden', display: 'flex', flexDirection: 'column', transition: 'border-color 0.25s', boxShadow: sel ? '0 0 0 1px rgba(124,58,237,0.3), 0 16px 48px rgba(109,40,217,0.25)' : 'none' }}>
 
-                        {/* Popular pill — inside card, top-right */}
-                        {plan.popular && (
-                          <div style={{ position: 'absolute', top: 16, right: 14, background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(167,139,250,0.4)', borderRadius: 100, padding: '3px 9px', fontSize: 9, fontWeight: 700, color: '#C4B5FD', letterSpacing: '0.09em', textTransform: 'uppercase' }}>
-                            Popular
+                        {/* Bottom-bloom gradient overlay — fades in on hover/select */}
+                        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 140% 60% at 50% 100%, #6D28D9 0%, #4C1D95 28%, #1E0A3C 58%, rgba(9,9,11,0) 85%)', opacity: lit ? 1 : 0, transition: 'opacity 0.35s ease', pointerEvents: 'none' }} />
+
+                        {/* Content sits above gradient */}
+                        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', flex: 1 }}>
+
+                          {/* Popular pill */}
+                          {plan.popular && (
+                            <div style={{ alignSelf: 'flex-start', background: lit ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.07)', border: `1px solid ${lit ? 'rgba(167,139,250,0.45)' : 'rgba(255,255,255,0.12)'}`, borderRadius: 100, padding: '3px 9px', fontSize: 9, fontWeight: 700, color: lit ? '#C4B5FD' : C.muted, letterSpacing: '0.09em', textTransform: 'uppercase', marginBottom: 12, transition: 'all 0.25s' }}>
+                              Popular
+                            </div>
+                          )}
+                          {!plan.popular && <div style={{ height: 0, marginBottom: 12 }} />}
+
+                          {/* Plan name */}
+                          <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: lit ? 'rgba(196,181,253,0.65)' : C.muted, margin: '0 0 10px', transition: 'color 0.25s' }}>
+                            {plan.name}
+                          </p>
+
+                          {/* Price */}
+                          <div style={{ marginBottom: 8 }}>
+                            <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1, color: lit ? '#EDE9FE' : C.text, transition: 'color 0.25s' }}>
+                              {plan.price}
+                            </span>
+                            <span style={{ fontSize: 11, color: lit ? 'rgba(196,181,253,0.55)' : C.muted, marginLeft: 3, transition: 'color 0.25s' }}>
+                              {plan.period}
+                            </span>
                           </div>
-                        )}
 
-                        {/* Plan name */}
-                        <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: plan.popular ? 'rgba(196,181,253,0.6)' : C.muted, margin: '0 0 12px' }}>
-                          {plan.name}
-                        </p>
+                          {/* Description */}
+                          <p style={{ fontSize: 11.5, color: lit ? 'rgba(196,181,253,0.65)' : C.muted, lineHeight: 1.55, margin: '0 0 16px', minHeight: 34, transition: 'color 0.25s' }}>
+                            {plan.desc}
+                          </p>
 
-                        {/* Price */}
-                        <div style={{ marginBottom: 8 }}>
-                          <span style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1, color: plan.popular ? '#EDE9FE' : C.text }}>
-                            {plan.price}
-                          </span>
-                          <span style={{ fontSize: 11, color: plan.popular ? 'rgba(196,181,253,0.55)' : C.muted, marginLeft: 3 }}>
-                            {plan.period}
-                          </span>
+                          {/* CTA */}
+                          <button type="button" onClick={e => { e.stopPropagation(); setSelectedPlan(plan.id) }}
+                            style={{ width: '100%', background: lit ? 'rgba(109,40,217,0.35)' : 'rgba(255,255,255,0.05)', border: `1px solid ${lit ? 'rgba(139,92,246,0.55)' : 'rgba(255,255,255,0.1)'}`, color: lit ? '#E9D5FF' : C.muted, borderRadius: 10, padding: '9px 0', fontSize: 12, fontWeight: 600, cursor: 'pointer', marginBottom: 16, letterSpacing: '0.01em', transition: 'all 0.25s' }}>
+                            {plan.cta}
+                          </button>
+
+                          {/* Divider */}
+                          <div style={{ height: 1, background: lit ? 'rgba(139,92,246,0.25)' : 'rgba(255,255,255,0.06)', marginBottom: 13, transition: 'background 0.25s' }} />
+
+                          {/* Features */}
+                          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+                            {plan.features.map(f => (
+                              <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11.5, color: lit ? 'rgba(224,213,255,0.82)' : C.muted, lineHeight: 1.3, transition: 'color 0.25s' }}>
+                                <PlanCheck accent={lit} />
+                                {f}
+                              </li>
+                            ))}
+                          </ul>
                         </div>
-
-                        {/* Description */}
-                        <p style={{ fontSize: 11.5, color: plan.popular ? 'rgba(196,181,253,0.6)' : C.muted, lineHeight: 1.55, margin: '0 0 16px', flexGrow: 0, minHeight: 34 }}>
-                          {plan.desc}
-                        </p>
-
-                        {/* CTA button */}
-                        <button type="button" onClick={e => { e.stopPropagation(); setSelectedPlan(plan.id) }}
-                          style={{ width: '100%', background: plan.popular ? 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)' : sel ? 'rgba(109,40,217,0.18)' : 'rgba(255,255,255,0.05)', border: plan.popular ? 'none' : `1px solid ${sel ? 'rgba(124,58,237,0.5)' : 'rgba(255,255,255,0.1)'}`, color: plan.popular ? '#fff' : sel ? '#C4B5FD' : C.muted, borderRadius: 10, padding: '9px 0', fontSize: 12, fontWeight: 600, cursor: 'pointer', marginBottom: 16, letterSpacing: '0.01em', boxShadow: plan.popular ? '0 4px 18px rgba(109,40,217,0.45)' : 'none' }}>
-                          {plan.cta}
-                        </button>
-
-                        {/* Divider */}
-                        <div style={{ height: 1, background: plan.popular ? 'rgba(139,92,246,0.2)' : 'rgba(255,255,255,0.06)', marginBottom: 13 }} />
-
-                        {/* Features */}
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
-                          {plan.features.map(f => (
-                            <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 11.5, color: plan.popular ? 'rgba(224,213,255,0.8)' : C.muted, lineHeight: 1.3 }}>
-                              <PlanCheck accent={plan.popular} />
-                              {f}
-                            </li>
-                          ))}
-                        </ul>
                       </div>
                     )
                   })}
