@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import BottomNav from './components/BottomNav'
 import Landing from './pages/Landing'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import Home from './pages/Home'
 import Bookings from './pages/Bookings'
 import Clients from './pages/Clients'
@@ -89,6 +90,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/app" element={<RequireAuth><AppShell /></RequireAuth>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
