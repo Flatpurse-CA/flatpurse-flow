@@ -531,10 +531,20 @@ export default function Register() {
                             {plan.desc}
                           </p>
 
-                          {/* CTA */}
-                          <button type="button" onClick={e => { e.stopPropagation(); setSelectedPlan(plan.id) }}
-                            style={{ width: '100%', background: lit ? 'rgba(109,40,217,0.35)' : 'rgba(255,255,255,0.05)', border: `1px solid ${lit ? 'rgba(139,92,246,0.55)' : 'rgba(255,255,255,0.1)'}`, color: lit ? '#E9D5FF' : C.muted, borderRadius: 10, padding: '10px 0', fontSize: 12, fontWeight: 600, cursor: 'pointer', marginBottom: 16, letterSpacing: '0.01em', transition: 'all 0.25s' }}>
-                            {plan.cta}
+                          {/* CTA — selects plan and submits */}
+                          <button type="button" disabled={loading} onClick={async e => {
+                            e.stopPropagation()
+                            setSelectedPlan(plan.id)
+                            setError(null); setLoading(true)
+                            try {
+                              await register({ firstName, lastName, email, password, phone, businessName: shopName, businessType: businessType ?? '', city, province, plan: plan.id })
+                              setShowDownloadModal(true)
+                            } catch (err) {
+                              setError(err instanceof Error ? err.message : 'Registration failed')
+                            } finally { setLoading(false) }
+                          }}
+                            style={{ width: '100%', background: loading && selectedPlan === plan.id ? C.surface2 : lit ? 'rgba(109,40,217,0.35)' : 'rgba(255,255,255,0.05)', border: `1px solid ${lit ? 'rgba(139,92,246,0.55)' : 'rgba(255,255,255,0.1)'}`, color: lit ? '#E9D5FF' : C.muted, borderRadius: 10, padding: '10px 0', fontSize: 12, fontWeight: 600, cursor: loading ? 'default' : 'pointer', marginBottom: 16, letterSpacing: '0.01em', transition: 'all 0.25s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                            {loading && selectedPlan === plan.id ? <><Spinner />Creating…</> : plan.cta}
                           </button>
 
                           {/* Divider */}
@@ -555,23 +565,11 @@ export default function Register() {
                   })}
                 </div>
 
-                {error && <div style={{ background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '11px 14px', color: C.error, fontSize: 13, marginBottom: 14 }}>{error}</div>}
+                {error && <div style={{ background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '11px 14px', color: C.error, fontSize: 13, marginBottom: 12 }}>{error}</div>}
 
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button type="button" onClick={() => setStep(2)} style={{ flexShrink: 0, background: 'transparent', color: C.muted, border: `1px solid ${C.border}`, borderRadius: 12, padding: '13px 18px', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>← Back</button>
-                  <button type="button" disabled={loading} onClick={async () => {
-                    setError(null); setLoading(true)
-                    try {
-                      await register({ firstName, lastName, email, password, phone, businessName: shopName, businessType: businessType ?? '', city, province, plan: selectedPlan })
-                      setShowDownloadModal(true)
-                    } catch (err) {
-                      setError(err instanceof Error ? err.message : 'Registration failed')
-                    } finally { setLoading(false) }
-                  }}
-                    style={{ flex: 1, background: loading ? C.surface2 : 'linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%)', color: loading ? C.muted : '#fff', border: 'none', borderRadius: 12, padding: '13px', fontSize: 14, fontWeight: 700, cursor: loading ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: loading ? 'none' : '0 4px 22px rgba(109,40,217,0.38)', letterSpacing: '-0.01em' }}>
-                    {loading ? <><Spinner />Creating account…</> : `Continue with ${PRICING.find(p => p.id === selectedPlan)?.name ?? 'Founders'} →`}
-                  </button>
-                </div>
+                <button type="button" onClick={() => setStep(2)} style={{ background: 'none', border: 'none', color: C.muted, fontSize: 13, cursor: 'pointer', padding: '4px 0' }}>
+                  ← Back to shop details
+                </button>
               </>
             )}
           </div>
