@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { palette, useIsMobile, type Mode } from '../lib/auth-ui'
 import { useAuth } from '../context/AuthContext'
+import { api } from '../lib/api'
 
 const steps = [
   { n: 1, label: 'Create your account' },
   { n: 2, label: 'Set up your shop' },
   { n: 3, label: 'Choose your plan' },
+  { n: 4, label: 'Verify your number' },
 ]
 
 const SLIDES = [
@@ -65,11 +67,11 @@ export default function Register() {
   const [error, setError] = useState<string | null>(null)
 
   // Desktop step state
-  const [step, setStep] = useState<1|2|3>(1)
+  const [step, setStep] = useState<1|2|3|4>(1)
   const [transitioning, setTransitioning] = useState(false)
   const [transDir, setTransDir] = useState<1|-1>(1)
 
-  function goToStep(n: 1|2|3) {
+  function goToStep(n: 1|2|3|4) {
     setTransDir(n > step ? 1 : -1)
     setTransitioning(true)
     setTimeout(() => { setStep(n); setTransitioning(false) }, 360)
@@ -84,6 +86,8 @@ export default function Register() {
   const [showDownloadModal, setShowDownloadModal] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [carouselIdx, setCarouselIdx] = useState(0)
+  const [otp, setOtp] = useState(['', '', '', '', '', ''])
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -95,6 +99,45 @@ export default function Register() {
     const id = setInterval(() => setCarouselIdx(i => (i + 1) % SLIDES.length), 4000)
     return () => clearInterval(id)
   }, [])
+
+  function handleOtpChange(i: number, val: string) {
+    if (!/^\d*$/.test(val)) return
+    const next = [...otp]
+    next[i] = val.slice(-1)
+    setOtp(next)
+    if (val && i < 5) otpRefs.current[i + 1]?.focus()
+  }
+
+  function handleOtpKeyDown(i: number, e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Backspace' && !otp[i] && i > 0) otpRefs.current[i - 1]?.focus()
+  }
+
+  function handleOtpPaste(e: React.ClipboardEvent) {
+    const digits = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
+    if (!digits) return
+    e.preventDefault()
+    const next = Array(6).fill('')
+    digits.split('').forEach((c, idx) => { next[idx] = c })
+    setOtp(next)
+    otpRefs.current[Math.min(digits.length, 5)]?.focus()
+  }
+
+  async function sendOtp() {
+    await api.post('/auth/send-otp', { phone })
+  }
+
+  async function verifyAndRegister() {
+    const code = otp.join('')
+    if (code.length < 6) { setError('Please enter the full 6-digit code.'); return }
+    setError(null); setLoading(true)
+    try {
+      await api.post('/auth/verify-otp', { phone, code })
+      await register({ firstName, lastName, email, password, phone, businessName: shopName, businessType: businessType ?? '', city, province, plan: selectedPlan })
+      setShowDownloadModal(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verification failed. Please try again.')
+    } finally { setLoading(false) }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -308,11 +351,12 @@ export default function Register() {
   const onF = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => (e.target.style.borderColor = C.accent)
   const onB = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => (e.target.style.borderColor = C.border)
 
-  const STEP_HEADING = ['Create an Account', 'Set Up Your Shop', 'Choose Your Plan']
+  const STEP_HEADING = ['Create an Account', 'Set Up Your Shop', 'Choose Your Plan', 'Verify Your Number']
   const STEP_SUB = [
     'Enter your personal data to create your account.',
     'Tell us a bit about your business.',
     'Start free and upgrade anytime.',
+    `Enter the 6-digit code sent to ${phone || 'your phone'}.`,
   ]
 
   const ANIM_CSS = `
@@ -490,7 +534,7 @@ export default function Register() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, ...fadeUp(30) }}>
               <h1 style={{ color: C.text, fontSize: 26, fontWeight: 700, letterSpacing: '-0.025em', margin: 0 }}>{STEP_HEADING[step - 1]}</h1>
               {step > 1 && (
-                <button onClick={() => goToStep((step - 1) as 1|2|3)}
+                <button onClick={() => goToStep((step - 1) as 1|2|3|4)}
                   style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: `1px solid ${C.border}`, borderRadius: 8, padding: '7px 14px', color: C.muted, fontSize: 13, fontWeight: 500, cursor: 'pointer', flexShrink: 0 }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   Back
@@ -682,16 +726,18 @@ export default function Register() {
                             ))}
                           </ul>
 
-                          {/* CTA — only shows when selected, submits */}
+                          {/* CTA — only shows when selected, sends OTP then advances to step 4 */}
                           {sel && (
                             <button type="button" disabled={loading} onClick={async e => {
                               e.stopPropagation()
+                              if (!phone.trim()) { setError('Please go back and add your phone number to verify your account.'); return }
                               setError(null); setLoading(true)
                               try {
-                                await register({ firstName, lastName, email, password, phone, businessName: shopName, businessType: businessType ?? '', city, province, plan: plan.id })
-                                setShowDownloadModal(true)
+                                await sendOtp()
+                                setOtp(['', '', '', '', '', ''])
+                                goToStep(4)
                               } catch (err) {
-                                setError(err instanceof Error ? err.message : 'Registration failed')
+                                setError(err instanceof Error ? err.message : 'Failed to send verification code')
                               } finally { setLoading(false) }
                             }}
                               style={{
@@ -710,7 +756,7 @@ export default function Register() {
                                 letterSpacing: '0.01em',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                               }}>
-                              {loading ? <><Spinner />Creating…</> : plan.cta}
+                              {loading ? <><Spinner />Sending code…</> : plan.cta}
                             </button>
                           )}
                         </div>
@@ -720,6 +766,62 @@ export default function Register() {
                 </div>
 
                 {error && <div style={{ background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '11px 14px', color: C.error, fontSize: 13, marginTop: 4 }}>{error}</div>}
+              </>
+            )}
+
+            {/* ── Step 4: OTP Verification ── */}
+            {step === 4 && (
+              <>
+                <div style={{ textAlign: 'center', marginBottom: 32, ...fadeUp(80) }}>
+                  <div style={{ width: 60, height: 60, borderRadius: 16, background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px', boxShadow: '0 10px 28px rgba(109,40,217,0.35)' }}>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="#fff" strokeWidth="1.8"/><circle cx="12" cy="17.5" r="1" fill="#fff"/></svg>
+                  </div>
+                  <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.6, margin: 0 }}>
+                    We sent a 6-digit code to <strong style={{ color: C.text }}>{phone}</strong>
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 28, ...fadeUp(140) }}
+                  onPaste={handleOtpPaste}>
+                  {otp.map((digit, i) => (
+                    <input
+                      key={i}
+                      ref={el => { otpRefs.current[i] = el }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={e => handleOtpChange(i, e.target.value)}
+                      onKeyDown={e => handleOtpKeyDown(i, e)}
+                      style={{
+                        width: 52, height: 62, textAlign: 'center',
+                        background: C.inputBg, border: `1.5px solid ${digit ? C.accent : C.border}`,
+                        borderRadius: 12, color: C.text, fontSize: 24, fontWeight: 700,
+                        outline: 'none', transition: 'border-color 0.15s', boxSizing: 'border-box',
+                      }}
+                      onFocus={e => (e.target.style.borderColor = C.accent)}
+                      onBlur={e => (e.target.style.borderColor = otp[i] ? C.accent : C.border)}
+                    />
+                  ))}
+                </div>
+
+                {error && <div style={{ background: 'rgba(248,113,113,0.07)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 10, padding: '11px 14px', color: C.error, fontSize: 13, marginBottom: 16 }}>{error}</div>}
+
+                <div style={fadeUp(200)}>
+                  <button type="button" disabled={loading || otp.join('').length < 6} onClick={verifyAndRegister}
+                    style={{ width: '100%', background: otp.join('').length < 6 ? C.surface2 : C.submitBg, color: otp.join('').length < 6 ? C.muted : C.submitText, border: 'none', borderRadius: 12, padding: '14px', fontSize: 15, fontWeight: 600, cursor: loading || otp.join('').length < 6 ? 'default' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    {loading ? <><Spinner />Verifying…</> : <>Verify & Create Account <ArrowRightIcon /></>}
+                  </button>
+                </div>
+
+                <p style={{ color: C.muted, fontSize: 13, textAlign: 'center', marginTop: 20, ...fadeUp(260) }}>
+                  Didn't receive the code?{' '}
+                  <span onClick={async () => {
+                    setOtp(['', '', '', '', '', ''])
+                    setError(null)
+                    try { await api.post('/auth/send-otp', { phone }) } catch {}
+                  }} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>Resend</span>
+                </p>
               </>
             )}
           </div>

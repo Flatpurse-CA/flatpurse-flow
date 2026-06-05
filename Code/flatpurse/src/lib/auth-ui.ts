@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react'
 export type Mode = 'dark' | 'light'
 
 export function useIsMobile() {
-  const [mobile, setMobile] = useState(() => window.innerWidth < 768)
+  const [mobile, setMobile] = useState(() => window.innerWidth < 1024)
   useEffect(() => {
-    const fn = () => setMobile(window.innerWidth < 768)
+    const fn = () => setMobile(window.innerWidth < 1024)
     window.addEventListener('resize', fn)
     return () => window.removeEventListener('resize', fn)
   }, [])
