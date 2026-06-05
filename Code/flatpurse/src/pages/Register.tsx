@@ -68,7 +68,8 @@ export default function Register() {
         {/* Banner (logo + toggle only) */}
         <div style={{
           flexShrink: 0,
-          padding: '40px 24px 28px',
+          paddingTop: 'max(40px, calc(env(safe-area-inset-top, 0px) + 20px))',
+          paddingLeft: 24, paddingRight: 24, paddingBottom: 28,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <img src="/Flatpurse flow .svg" alt="Flatpurse"
