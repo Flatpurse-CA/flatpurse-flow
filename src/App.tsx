@@ -11,6 +11,7 @@ import Clients from './pages/Clients'
 import Team from './pages/Team'
 import AutoPilot from './pages/AutoPilot'
 import Operations from './pages/Operations'
+import Splash from './pages/Splash'
 
 export type Tab = 'home' | 'bookings' | 'clients' | 'team' | 'autopilot' | 'operations'
 
@@ -84,17 +85,31 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const [splashDone, setSplashDone] = useState(() => {
+    const isMobile = window.innerWidth < 768
+    if (!isMobile) return true
+    return sessionStorage.getItem('fp-splash') === '1'
+  })
+
+  function handleSplashDone() {
+    sessionStorage.setItem('fp-splash', '1')
+    setSplashDone(true)
+  }
+
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/app" element={<RequireAuth><AppShell /></RequireAuth>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+    <>
+      {!splashDone && <Splash onDone={handleSplashDone} />}
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/app" element={<RequireAuth><AppShell /></RequireAuth>} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </>
   )
 }
