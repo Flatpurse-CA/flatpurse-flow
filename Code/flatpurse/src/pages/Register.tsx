@@ -303,6 +303,10 @@ export default function Register() {
       from { opacity:1; transform:translateX(0) scale(1); filter:blur(0px); }
       to   { opacity:0; transform:translateX(-48px) scale(0.95); filter:blur(6px); }
     }
+    @keyframes fp-panel-in {
+      from { opacity:0; transform:translateX(-48px) scale(0.95); filter:blur(6px); }
+      to   { opacity:1; transform:translateX(0) scale(1); filter:blur(0px); }
+    }
     @keyframes fp-slide-in-r {
       from { opacity:0; transform:translateX(52px); }
       to   { opacity:1; transform:translateX(0); }
@@ -363,7 +367,7 @@ export default function Register() {
 
       {/* Left panel — step 1 only (step hasn't changed yet during exit animation) */}
       {step === 1 && (
-        <div style={{ width: '45%', minWidth: 420, position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '48px 44px', overflow: 'hidden', animation: transitioning ? 'fp-panel-out 0.36s cubic-bezier(0.4,0,1,1) forwards' : 'none' }}>
+        <div style={{ width: '45%', minWidth: 420, position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '48px 44px', overflow: 'hidden', animation: transitioning ? 'fp-panel-out 0.36s cubic-bezier(0.4,0,1,1) forwards' : 'fp-panel-in 0.42s cubic-bezier(0.16,1,0.3,1) both' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 60% 10%, #7C3AED 0%, #4C1D95 35%, #1A0A2E 65%, #09090B 100%)', borderRadius: 20, margin: 12 }} />
           <div style={{ position: 'absolute', inset: 0, margin: 12, borderRadius: 20, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")` }} />
           <div style={{ position: 'absolute', top: 44, left: 44, zIndex: 1 }}>
