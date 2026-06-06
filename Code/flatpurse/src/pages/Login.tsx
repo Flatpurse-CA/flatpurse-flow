@@ -194,16 +194,14 @@ export default function Login() {
 
         {/* Social */}
         <div style={{ display: 'flex', gap: 12 }}>
-          {[{ icon: <GoogleIcon />, label: 'Google' }, { icon: <AppleIcon />, label: 'Apple' }].map(({ icon, label }) => (
-            <button key={label} type="button" style={{
-              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              background: C.surface, border: `1px solid ${C.border}`,
-              borderRadius: 12, padding: '12px 16px',
-              color: C.text, fontSize: 14, fontWeight: 500, cursor: 'pointer',
-            }}>
-              {icon}{label}
-            </button>
-          ))}
+          <button type="button" style={{
+            flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            background: C.surface, border: `1px solid ${C.border}`,
+            borderRadius: 12, padding: '12px 16px',
+            color: C.text, fontSize: 14, fontWeight: 500, cursor: 'pointer',
+          }}>
+            <GoogleIcon />Google
+          </button>
         </div>
       </div>
 

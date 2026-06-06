@@ -309,16 +309,14 @@ export default function Register() {
 
           {/* Social */}
           <div style={{ display: 'flex', gap: 12 }}>
-            {[{ icon: <GoogleIcon />, label: 'Google' }, { icon: <AppleIcon />, label: 'Apple' }].map(({ icon, label }) => (
-              <button key={label} type="button" style={{
-                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                background: C.surface, border: `1px solid ${C.border}`,
-                borderRadius: 12, padding: '12px 16px',
-                color: C.text, fontSize: 14, fontWeight: 500, cursor: 'pointer',
-              }}>
-                {icon}{label}
-              </button>
-            ))}
+            <button type="button" style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              background: C.surface, border: `1px solid ${C.border}`,
+              borderRadius: 12, padding: '12px 16px',
+              color: C.text, fontSize: 14, fontWeight: 500, cursor: 'pointer',
+            }}>
+              <GoogleIcon />Google
+            </button>
           </div>
         </div>
 
@@ -546,11 +544,9 @@ export default function Register() {
             {step === 1 && (
               <>
                 <div style={{ display: 'flex', gap: 12, marginBottom: 24, ...fadeUp(80) }}>
-                  {[{ icon: <GoogleIcon />, label: 'Google' }, { icon: <AppleIcon />, label: 'Apple' }].map(({ icon, label }) => (
-                    <button key={label} type="button" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: C.socialBg, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 16px', color: C.text, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
-                      {icon}{label}
-                    </button>
-                  ))}
+                  <button type="button" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: C.socialBg, border: `1px solid ${C.border}`, borderRadius: 10, padding: '12px 16px', color: C.text, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
+                    <GoogleIcon />Google
+                  </button>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, ...fadeUp(120) }}>
                   <div style={{ flex: 1, height: 1, background: C.border }} />
