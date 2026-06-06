@@ -26,7 +26,7 @@ const ANIM_CSS = `
 `
 
 export default function Login() {
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const navigate = useNavigate()
   const isMobile = useIsMobile()
 
@@ -41,6 +41,10 @@ export default function Login() {
   const [carouselIdx, setCarouselIdx] = useState(0)
 
   const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (user) navigate('/app', { replace: true })
+  }, [user, navigate])
 
   useEffect(() => {
     containerRef.current?.focus()
