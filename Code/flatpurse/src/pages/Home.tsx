@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { CalendarDays, DollarSign, Scissors, Zap } from 'lucide-react'
 
 interface Booking {
   id: string
@@ -143,7 +144,7 @@ function BookingCard({ booking }: { booking: Booking }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         flexShrink: 0,
       }}>
-        <span style={{ fontSize: 16 }}>💇</span>
+        <Scissors size={18} color={C.accent} strokeWidth={1.8} />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ color: C.text, fontWeight: 600, fontSize: 14, marginBottom: 2 }}>{clientName}</div>
@@ -190,14 +191,14 @@ export default function Home() {
           label="Appointments"
           value={loading ? '—' : String(data?.appointmentsToday ?? 0)}
           sub="today"
-          icon="📅"
+          icon={<CalendarDays size={18} color={C.accent} strokeWidth={1.8} />}
           soft={C.accentSoft}
         />
         <StatCard
           label="Revenue"
           value={loading ? '—' : formatCurrency(data?.revenueToday ?? 0)}
           sub="today"
-          icon="💰"
+          icon={<DollarSign size={18} color={C.green} strokeWidth={1.8} />}
           soft={C.greenSoft}
         />
       </div>
@@ -230,7 +231,7 @@ export default function Home() {
                 padding: '13px 16px',
                 borderBottom: i < data.autopilotHighlights.length - 1 ? `1px solid ${C.border}` : 'none',
               }}>
-                <span style={{ fontSize: 14 }}>⚡</span>
+                <Zap size={14} color={C.accent} strokeWidth={1.8} />
                 <span style={{ color: C.muted, fontSize: 13 }}>{h}</span>
               </div>
             ))}
@@ -244,7 +245,7 @@ export default function Home() {
 }
 
 function StatCard({ label, value, sub, icon, soft }: {
-  label: string; value: string; sub: string; icon: string; soft: string
+  label: string; value: string; sub: string; icon: React.ReactNode; soft: string
 }) {
   return (
     <div style={{
@@ -257,7 +258,7 @@ function StatCard({ label, value, sub, icon, soft }: {
         width: 36, height: 36, borderRadius: 10,
         background: soft,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginBottom: 12, fontSize: 18,
+        marginBottom: 12,
       }}>
         {icon}
       </div>
