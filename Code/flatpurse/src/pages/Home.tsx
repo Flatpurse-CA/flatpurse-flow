@@ -107,17 +107,6 @@ function formatCurrency(amount: number) {
   return new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(amount)
 }
 
-function getGreeting() {
-  const h = new Date().getHours()
-  if (h < 12) return 'Good morning'
-  if (h < 17) return 'Good afternoon'
-  return 'Good evening'
-}
-
-function todayLabel() {
-  return new Date().toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' })
-}
-
 function statusColor(status: string) {
   switch (status) {
     case 'Confirmed': return '#7C6EF5'
@@ -187,23 +176,14 @@ function EmptyState({ message }: { message: string }) {
 }
 
 export default function Home() {
-  const { user } = useAuth()
   const { data, loading } = useDashboard()
 
   return (
     <div style={{
-      padding: '4px 16px 0',
+      padding: '24px 28px 0',
       fontFamily: "'DM Sans', system-ui, sans-serif",
       color: C.text,
     }}>
-      {/* Greeting */}
-      <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', color: C.text }}>
-          {getGreeting()}{user?.firstName ? `, ${user.firstName}` : ''} 👋
-        </h1>
-        <p style={{ color: C.muted, fontSize: 13, marginTop: 2 }}>{todayLabel()}</p>
-      </div>
-
       {/* Stat Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
         <StatCard
