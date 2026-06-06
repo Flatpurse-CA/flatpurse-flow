@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import type { Tab } from '../App'
 
@@ -18,7 +18,7 @@ const C = {
 interface NavItem {
   id: Tab
   label: string
-  icon: () => JSX.Element
+  icon: () => React.ReactElement
 }
 
 const NAV: NavItem[] = [
