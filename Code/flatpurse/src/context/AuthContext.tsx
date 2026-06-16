@@ -5,7 +5,6 @@ import { supabase } from '../lib/supabase'
 interface AuthUser {
   id: string
   email: string | undefined
-  phone: string | undefined
   firstName: string
   lastName: string
   businessName: string
@@ -17,7 +16,6 @@ export interface RegisterPayload {
   lastName: string
   email: string
   password: string
-  phone: string
   businessName: string
   businessType: string
   city: string
@@ -31,9 +29,8 @@ interface AuthContextValue {
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   signUp: (payload: RegisterPayload) => Promise<void>
-  sendOtp: (phone: string) => Promise<void>
-  verifyOtp: (phone: string, token: string) => Promise<void>
-  completeRegistration: (payload: RegisterPayload) => Promise<void>
+  verifyEmailOtp: (email: string, code: string) => Promise<void>
+  resendEmailOtp: (email: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -44,7 +41,6 @@ function mapUser(user: User): AuthUser {
   return {
     id: user.id,
     email: user.email,
-    phone: user.phone,
     firstName: meta.firstName ?? '',
     lastName: meta.lastName ?? '',
     businessName: meta.businessName ?? '',
@@ -85,7 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         data: {
           firstName: payload.firstName,
           lastName: payload.lastName,
-          phone: payload.phone,
           businessName: payload.businessName,
           businessType: payload.businessType,
           city: payload.city,
@@ -97,31 +92,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw new Error(error.message)
   }
 
-  const sendOtp = async (phone: string) => {
-    const { error } = await supabase.auth.signInWithOtp({ phone, options: { channel: 'sms' } })
+  const verifyEmailOtp = async (email: string, code: string) => {
+    const { error, data } = await supabase.auth.verifyOtp({ email, token: code, type: 'signup' })
     if (error) throw new Error(error.message)
+    if (data.session) setSession(data.session)
   }
 
-  const verifyOtp = async (phone: string, token: string) => {
-    const { error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' })
-    if (error) throw new Error(error.message)
-  }
-
-  const completeRegistration = async (payload: RegisterPayload) => {
-    const { error } = await supabase.auth.updateUser({
-      email: payload.email,
-      password: payload.password,
-      data: {
-        firstName: payload.firstName,
-        lastName: payload.lastName,
-        phone: payload.phone,
-        businessName: payload.businessName,
-        businessType: payload.businessType,
-        city: payload.city,
-        province: payload.province,
-        plan: payload.plan,
-      },
-    })
+  const resendEmailOtp = async (email: string) => {
+    const { error } = await supabase.auth.resend({ type: 'signup', email })
     if (error) throw new Error(error.message)
   }
 
@@ -130,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, login, signUp, sendOtp, verifyOtp, completeRegistration, logout }}>
+    <AuthContext.Provider value={{ user, session, loading, login, signUp, verifyEmailOtp, resendEmailOtp, logout }}>
       {children}
     </AuthContext.Provider>
   )

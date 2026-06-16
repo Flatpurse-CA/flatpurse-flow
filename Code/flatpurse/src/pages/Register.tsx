@@ -7,7 +7,7 @@ const steps = [
   { n: 1, label: 'Create your account' },
   { n: 2, label: 'Set up your shop' },
   { n: 3, label: 'Choose your plan' },
-  { n: 4, label: 'Verify your number' },
+  { n: 4, label: 'Verify your email' },
 ]
 
 const SLIDES = [
@@ -51,7 +51,7 @@ const PRICING = [
 
 export default function Register() {
   const navigate = useNavigate()
-  const { signUp, sendOtp: authSendOtp, verifyOtp: authVerifyOtp } = useAuth()
+  const { signUp, verifyEmailOtp, resendEmailOtp } = useAuth()
   const isMobile = useIsMobile()
 
   const [mode, setMode] = useState<Mode>('dark')
@@ -75,7 +75,6 @@ export default function Register() {
     setTransitioning(true)
     setTimeout(() => { setStep(n); setTransitioning(false) }, 360)
   }
-  const [phone, setPhone] = useState('')
   const [shopName, setShopName] = useState('')
   const [businessType, setBusinessType] = useState<string|null>(null)
   const [city, setCity] = useState('')
@@ -120,8 +119,15 @@ export default function Register() {
     otpRefs.current[Math.min(digits.length, 5)]?.focus()
   }
 
-  async function sendOtp() {
-    await authSendOtp(phone)
+  async function registerAndSendOtp() {
+    setError(null); setLoading(true)
+    try {
+      await signUp({ firstName, lastName, email, password, businessName: shopName, businessType: businessType ?? '', city, province, plan: selectedPlan })
+      setOtp(['', '', '', '', '', ''])
+      goToStep(4)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create account')
+    } finally { setLoading(false) }
   }
 
   async function verifyAndRegister() {
@@ -129,28 +135,11 @@ export default function Register() {
     if (code.length < 6) { setError('Please enter the full 6-digit code.'); return }
     setError(null); setLoading(true)
     try {
-      await authVerifyOtp(phone, code)
-      await signUp({ firstName, lastName, email, password, phone, businessName: shopName, businessType: businessType ?? '', city, province, plan: selectedPlan })
+      await verifyEmailOtp(email, code)
       setShowDownloadModal(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Verification failed. Please try again.')
     } finally { setLoading(false) }
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (password.length < 8) { setError('Password must be at least 8 characters.'); return }
-    if (!firstName.trim() || !lastName.trim()) { setError('Please enter your first and last name.'); return }
-    setError(null)
-    setLoading(true)
-    try {
-      await signUp({ firstName, lastName, email, password, phone: '', businessName: '', businessType: '', city: '', province: '', plan: 'starter' })
-      navigate('/app', { replace: true })
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sign up failed')
-    } finally {
-      setLoading(false)
-    }
   }
 
   const inputStyle: React.CSSProperties = {
@@ -168,6 +157,32 @@ export default function Register() {
 
   /* ── Mobile layout ─────────────────────────────────────────── */
   if (isMobile) {
+    const STEP_HEADING_M = ['Create account', 'Set up your shop', 'Choose your plan', 'Verify your email']
+    const STEP_SUB_M = [
+      'Enter your details to get started.',
+      'Tell us a bit about your business.',
+      'Start free and upgrade anytime.',
+      `Enter the 6-digit code sent to ${email || 'your email'}.`,
+    ]
+
+    function nextFromStep1() {
+      if (!firstName.trim() || !lastName.trim()) { setError('Please enter your first and last name.'); return }
+      if (!email.trim()) { setError('Please enter your email address.'); return }
+      if (password.length < 8) { setError('Password must be at least 8 characters.'); return }
+      setError(null); goToStep(2)
+    }
+
+    function nextFromStep2() {
+      if (!shopName.trim()) { setError('Please enter your shop name.'); return }
+      if (!businessType) { setError('Please select a business type.'); return }
+      if (!city.trim() || !province) { setError('Please enter your city and province.'); return }
+      setError(null); goToStep(3)
+    }
+
+    async function selectPlanAndContinue() {
+      await registerAndSendOtp()
+    }
+
     return (
       <div
         ref={containerRef}
@@ -183,16 +198,30 @@ export default function Register() {
           flexDirection: 'column',
           outline: 'none',
         }}>
+        {showDownloadModal && <DownloadModal mode={mode} C={C} />}
 
-        {/* Banner (logo + toggle only) */}
+        {/* Banner */}
         <div style={{
           flexShrink: 0,
           paddingTop: 'max(40px, calc(env(safe-area-inset-top, 0px) + 20px))',
-          paddingLeft: 24, paddingRight: 24, paddingBottom: 28,
+          paddingLeft: 24, paddingRight: 24, paddingBottom: 20,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <img src="/Flatpurse flow .svg" alt="Flatpurse"
-              style={{ height: 28, width: 'auto', filter: mode === 'dark' ? 'brightness(0) invert(1)' : 'none' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {step > 1 && (
+                <button onClick={() => goToStep((step - 1) as 1|2|3|4)} style={{
+                  width: 32, height: 32, borderRadius: 9, flexShrink: 0,
+                  background: mode === 'dark' ? 'rgba(255,255,255,0.12)' : C.surface2,
+                  border: mode === 'dark' ? '1px solid rgba(255,255,255,0.2)' : `1px solid ${C.border}`,
+                  color: mode === 'dark' ? '#fff' : C.muted, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
+              )}
+              <img src="/Flatpurse flow .svg" alt="Flatpurse"
+                style={{ height: 28, width: 'auto', filter: mode === 'dark' ? 'brightness(0) invert(1)' : 'none' }} />
+            </div>
             <button onClick={() => setMode(m => m === 'dark' ? 'light' : 'dark')} style={{
               width: 36, height: 36, borderRadius: 10,
               background: mode === 'dark' ? 'rgba(255,255,255,0.12)' : C.surface2,
@@ -204,136 +233,325 @@ export default function Register() {
               {mode === 'dark' ? <SunIcon /> : <MoonIcon />}
             </button>
           </div>
+
+          {/* Step progress bar */}
+          <div style={{ display: 'flex', gap: 5, marginTop: 18 }}>
+            {steps.map(s => (
+              <div key={s.n} style={{ flex: 1, height: 4, borderRadius: 100, background: s.n <= step ? C.accent : (mode === 'dark' ? 'rgba(255,255,255,0.12)' : C.border), transition: 'background 0.3s ease' }} />
+            ))}
+          </div>
         </div>
 
-        {/* Main content — fills remaining, centred */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px', paddingBottom: 16 }}>
-          <h1 style={{ color: C.text, fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 4 }}>
-            Create account
+        {/* Main content — scrolls */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px', paddingBottom: 16, WebkitOverflowScrolling: 'touch' }}>
+          <h1 style={{ color: C.text, fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', marginBottom: 4 }}>
+            {STEP_HEADING_M[step - 1]}
           </h1>
           <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.5, margin: '0 0 22px' }}>
-            Enter your details to get started.
+            {STEP_SUB_M[step - 1]}
           </p>
 
-          <form onSubmit={handleSubmit}>
-
-            {/* First + Last name */}
-            <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>First Name</label>
-                <input type="text" autoComplete="given-name" required
-                  value={firstName} onChange={e => setFirstName(e.target.value)}
-                  placeholder="John"
-                  style={inputStyle}
-                  onFocus={e => (e.target.style.borderColor = C.accent)}
-                  onBlur={e => (e.target.style.borderColor = C.border)} />
+          {/* ── Step 1: Account ── */}
+          {step === 1 && (
+            <>
+              <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>First Name</label>
+                  <input type="text" autoComplete="given-name" required
+                    value={firstName} onChange={e => setFirstName(e.target.value)}
+                    placeholder="John"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = C.accent)}
+                    onBlur={e => (e.target.style.borderColor = C.border)} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Last Name</label>
+                  <input type="text" autoComplete="family-name" required
+                    value={lastName} onChange={e => setLastName(e.target.value)}
+                    placeholder="Doe"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = C.accent)}
+                    onBlur={e => (e.target.style.borderColor = C.border)} />
+                </div>
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Last Name</label>
-                <input type="text" autoComplete="family-name" required
-                  value={lastName} onChange={e => setLastName(e.target.value)}
-                  placeholder="Doe"
-                  style={inputStyle}
-                  onFocus={e => (e.target.style.borderColor = C.accent)}
-                  onBlur={e => (e.target.style.borderColor = C.border)} />
-              </div>
-            </div>
 
-            {/* Email */}
-            <div style={{ marginBottom: 12 }}>
-              <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Email</label>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: C.muted, display: 'flex', pointerEvents: 'none' }}>
-                  <MailIcon />
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Email</label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: C.muted, display: 'flex', pointerEvents: 'none' }}>
+                    <MailIcon />
+                  </span>
+                  <input type="email" autoComplete="email" required
+                    value={email} onChange={e => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    style={{ ...inputStyle, paddingLeft: 44 }}
+                    onFocus={e => (e.target.style.borderColor = C.accent)}
+                    onBlur={e => (e.target.style.borderColor = C.border)} />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Password</label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: C.muted, display: 'flex', pointerEvents: 'none' }}>
+                    <LockIcon />
+                  </span>
+                  <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" required
+                    value={password} onChange={e => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    style={{ ...inputStyle, paddingLeft: 44, paddingRight: 48 }}
+                    onFocus={e => (e.target.style.borderColor = C.accent)}
+                    onBlur={e => (e.target.style.borderColor = C.border)} />
+                  <button type="button" tabIndex={-1} onClick={() => setShowPassword(v => !v)}
+                    style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: C.muted, display: 'flex', padding: 4 }}>
+                    <EyeIcon open={showPassword} />
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div style={{
+                  background: mode === 'dark' ? 'rgba(248,113,113,0.08)' : 'rgba(220,38,38,0.06)',
+                  border: `1px solid ${mode === 'dark' ? 'rgba(248,113,113,0.25)' : 'rgba(220,38,38,0.2)'}`,
+                  borderRadius: 10, padding: '10px 14px', color: C.error,
+                  fontSize: 13, marginBottom: 14,
+                }}>{error}</div>
+              )}
+
+              <button type="button" onClick={nextFromStep1} style={{
+                width: '100%',
+                background: C.accent,
+                color: '#fff',
+                border: 'none', borderRadius: 14, padding: '15px',
+                fontSize: 16, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                marginBottom: 20,
+              }}>
+                Next Step <ArrowRightIcon />
+              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                <div style={{ flex: 1, height: 1, background: C.border }} />
+                <span style={{ color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                  or continue with
                 </span>
-                <input type="email" autoComplete="email" required
-                  value={email} onChange={e => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  style={{ ...inputStyle, paddingLeft: 44 }}
-                  onFocus={e => (e.target.style.borderColor = C.accent)}
-                  onBlur={e => (e.target.style.borderColor = C.border)} />
+                <div style={{ flex: 1, height: 1, background: C.border }} />
               </div>
-            </div>
 
-            {/* Password */}
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Password</label>
-              <div style={{ position: 'relative' }}>
-                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: C.muted, display: 'flex', pointerEvents: 'none' }}>
-                  <LockIcon />
-                </span>
-                <input type={showPassword ? 'text' : 'password'} autoComplete="new-password" required
-                  value={password} onChange={e => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  style={{ ...inputStyle, paddingLeft: 44, paddingRight: 48 }}
-                  onFocus={e => (e.target.style.borderColor = C.accent)}
-                  onBlur={e => (e.target.style.borderColor = C.border)} />
-                <button type="button" tabIndex={-1} onClick={() => setShowPassword(v => !v)}
-                  style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: C.muted, display: 'flex', padding: 4 }}>
-                  <EyeIcon open={showPassword} />
+              <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+                <button type="button" style={{
+                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  background: C.surface, border: `1px solid ${C.border}`,
+                  borderRadius: 12, padding: '12px 16px',
+                  color: C.text, fontSize: 14, fontWeight: 500, cursor: 'pointer',
+                }}>
+                  <GoogleIcon />Google
                 </button>
               </div>
-            </div>
 
-            {error && (
-              <div style={{
-                background: mode === 'dark' ? 'rgba(248,113,113,0.08)' : 'rgba(220,38,38,0.06)',
-                border: `1px solid ${mode === 'dark' ? 'rgba(248,113,113,0.25)' : 'rgba(220,38,38,0.2)'}`,
-                borderRadius: 10, padding: '10px 14px', color: C.error,
-                fontSize: 13, marginBottom: 14,
-              }}>{error}</div>
-            )}
+              <p style={{ color: C.muted, fontSize: 13, textAlign: 'center', margin: 0 }}>
+                Already have an account?{' '}
+                <span onClick={() => navigate('/login')} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>
+                  Log in
+                </span>
+              </p>
+            </>
+          )}
 
-            {/* Sign Up — accent + arrow */}
-            <button type="submit" disabled={loading} style={{
-              width: '100%',
-              background: loading ? C.surface2 : C.accent,
-              color: loading ? C.muted : '#fff',
-              border: 'none', borderRadius: 14, padding: '15px',
-              fontSize: 16, fontWeight: 700, cursor: loading ? 'default' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              marginBottom: 20,
-            }}>
-              {loading ? <><Spinner />Creating account…</> : <>Sign Up <ArrowRightIcon /></>}
-            </button>
-          </form>
+          {/* ── Step 2: Shop ── */}
+          {step === 2 && (
+            <>
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Shop Name</label>
+                <input type="text" value={shopName} onChange={e => setShopName(e.target.value)} placeholder="eg. Compound Cut Club" style={inputStyle}
+                  onFocus={e => (e.target.style.borderColor = C.accent)} onBlur={e => (e.target.style.borderColor = C.border)} />
+              </div>
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Business Type</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {BUSINESS_TYPES.map(t => (
+                    <button key={t} type="button" onClick={() => setBusinessType(t === businessType ? null : t)}
+                      style={{ background: businessType === t ? C.accent : C.surface2, color: businessType === t ? '#fff' : C.text, border: `1px solid ${businessType === t ? C.accent : C.border}`, borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>City</label>
+                  <input type="text" value={city} onChange={e => setCity(e.target.value)} placeholder="eg. Edmonton" style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = C.accent)} onBlur={e => (e.target.style.borderColor = C.border)} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ display: 'block', color: C.muted, fontSize: 13, fontWeight: 500, marginBottom: 6 }}>Province</label>
+                  <select value={province} onChange={e => setProvince(e.target.value)}
+                    onFocus={e => (e.target.style.borderColor = C.accent)} onBlur={e => (e.target.style.borderColor = C.border)}
+                    style={{ ...inputStyle, cursor: 'pointer', appearance: 'none' as React.CSSProperties['appearance'], backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%23888' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center', paddingRight: 36 }}>
+                    <option value="">Select…</option>
+                    {PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </div>
 
-          {/* OR CONTINUE WITH */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-            <div style={{ flex: 1, height: 1, background: C.border }} />
-            <span style={{ color: C.muted, fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              or continue with
-            </span>
-            <div style={{ flex: 1, height: 1, background: C.border }} />
-          </div>
+              {error && (
+                <div style={{
+                  background: mode === 'dark' ? 'rgba(248,113,113,0.08)' : 'rgba(220,38,38,0.06)',
+                  border: `1px solid ${mode === 'dark' ? 'rgba(248,113,113,0.25)' : 'rgba(220,38,38,0.2)'}`,
+                  borderRadius: 10, padding: '10px 14px', color: C.error,
+                  fontSize: 13, marginBottom: 14,
+                }}>{error}</div>
+              )}
 
-          {/* Social */}
-          <div style={{ display: 'flex', gap: 12 }}>
-            <button type="button" style={{
-              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              background: C.surface, border: `1px solid ${C.border}`,
-              borderRadius: 12, padding: '12px 16px',
-              color: C.text, fontSize: 14, fontWeight: 500, cursor: 'pointer',
-            }}>
-              <GoogleIcon />Google
-            </button>
-          </div>
+              <button type="button" onClick={nextFromStep2} style={{
+                width: '100%',
+                background: C.accent,
+                color: '#fff',
+                border: 'none', borderRadius: 14, padding: '15px',
+                fontSize: 16, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}>
+                Next Step <ArrowRightIcon />
+              </button>
+            </>
+          )}
+
+          {/* ── Step 3: Plan ── */}
+          {step === 3 && (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 14 }}>
+                {PRICING.map(plan => {
+                  const sel = selectedPlan === plan.id
+                  const badge = plan.popular ? 'Popular' : plan.founders ? 'Limited' : null
+                  const badgeColor = plan.founders
+                    ? { bg: mode === 'dark' ? 'rgba(251,191,36,0.15)' : 'rgba(161,98,7,0.12)', border: mode === 'dark' ? 'rgba(251,191,36,0.35)' : 'rgba(161,98,7,0.3)', text: mode === 'dark' ? '#FCD34D' : '#92400E' }
+                    : { bg: mode === 'dark' ? 'rgba(139,92,246,0.25)' : 'rgba(109,40,217,0.12)', border: mode === 'dark' ? 'rgba(167,139,250,0.45)' : 'rgba(109,40,217,0.3)', text: mode === 'dark' ? '#C4B5FD' : '#5B21B6' }
+                  return (
+                    <div key={plan.id} onClick={() => setSelectedPlan(plan.id)} style={{
+                      position: 'relative',
+                      background: sel ? (mode === 'dark' ? 'rgba(124,58,237,0.12)' : (plan.founders ? '#FFFBEB' : '#F5F3FF')) : C.surface,
+                      border: `1.5px solid ${sel ? (plan.founders ? 'rgba(217,160,30,0.7)' : 'rgba(124,58,237,0.6)') : C.border}`,
+                      borderRadius: 16, padding: '16px 16px', cursor: 'pointer',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: C.muted }}>{plan.name}</span>
+                          {badge && (
+                            <span style={{ background: badgeColor.bg, border: `1px solid ${badgeColor.border}`, borderRadius: 100, padding: '2px 8px', fontSize: 9, fontWeight: 700, color: badgeColor.text, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{badge}</span>
+                          )}
+                        </div>
+                        <div style={{ width: 20, height: 20, borderRadius: '50%', border: `1.5px solid ${sel ? C.accent : C.border}`, background: sel ? C.accent : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          {sel && <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                        </div>
+                      </div>
+                      <div style={{ marginBottom: 4 }}>
+                        <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.03em', color: C.text }}>{plan.price}</span>
+                        <span style={{ fontSize: 12, color: C.muted, marginLeft: 3 }}>{plan.period}</span>
+                      </div>
+                      <p style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.5, margin: '0 0 10px' }}>{plan.desc}</p>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {plan.features.map(f => (
+                          <li key={f} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: C.muted, lineHeight: 1.3 }}>
+                            <PlanCheck accent={sel} founders={plan.founders} dark={mode === 'dark'} />
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {error && (
+                <div style={{
+                  background: mode === 'dark' ? 'rgba(248,113,113,0.08)' : 'rgba(220,38,38,0.06)',
+                  border: `1px solid ${mode === 'dark' ? 'rgba(248,113,113,0.25)' : 'rgba(220,38,38,0.2)'}`,
+                  borderRadius: 10, padding: '10px 14px', color: C.error,
+                  fontSize: 13, marginBottom: 14,
+                }}>{error}</div>
+              )}
+
+              <button type="button" disabled={loading} onClick={selectPlanAndContinue} style={{
+                width: '100%',
+                background: loading ? C.surface2 : C.accent,
+                color: loading ? C.muted : '#fff',
+                border: 'none', borderRadius: 14, padding: '15px',
+                fontSize: 16, fontWeight: 700, cursor: loading ? 'default' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}>
+                {loading ? <><Spinner />Creating account…</> : <>Continue <ArrowRightIcon /></>}
+              </button>
+            </>
+          )}
+
+          {/* ── Step 4: OTP ── */}
+          {step === 4 && (
+            <>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginBottom: 28 }} onPaste={handleOtpPaste}>
+                {otp.map((digit, i) => (
+                  <input
+                    key={i}
+                    ref={el => { otpRefs.current[i] = el }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={e => handleOtpChange(i, e.target.value)}
+                    onKeyDown={e => handleOtpKeyDown(i, e)}
+                    style={{
+                      width: 44, height: 56, textAlign: 'center',
+                      background: C.inputBg, border: `1.5px solid ${digit ? C.accent : C.border}`,
+                      borderRadius: 12, color: C.text, fontSize: 22, fontWeight: 700,
+                      outline: 'none', boxSizing: 'border-box',
+                    }}
+                    onFocus={e => (e.target.style.borderColor = C.accent)}
+                    onBlur={e => (e.target.style.borderColor = otp[i] ? C.accent : C.border)} />
+                ))}
+              </div>
+
+              {error && (
+                <div style={{
+                  background: mode === 'dark' ? 'rgba(248,113,113,0.08)' : 'rgba(220,38,38,0.06)',
+                  border: `1px solid ${mode === 'dark' ? 'rgba(248,113,113,0.25)' : 'rgba(220,38,38,0.2)'}`,
+                  borderRadius: 10, padding: '10px 14px', color: C.error,
+                  fontSize: 13, marginBottom: 16,
+                }}>{error}</div>
+              )}
+
+              <button type="button" disabled={loading || otp.join('').length < 6} onClick={verifyAndRegister} style={{
+                width: '100%',
+                background: otp.join('').length < 6 ? C.surface2 : C.accent,
+                color: otp.join('').length < 6 ? C.muted : '#fff',
+                border: 'none', borderRadius: 14, padding: '15px',
+                fontSize: 16, fontWeight: 700, cursor: loading || otp.join('').length < 6 ? 'default' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                marginBottom: 20,
+              }}>
+                {loading ? <><Spinner />Verifying…</> : <>Verify & Create Account <ArrowRightIcon /></>}
+              </button>
+
+              <p style={{ color: C.muted, fontSize: 13, textAlign: 'center', margin: 0 }}>
+                Didn't receive the code?{' '}
+                <span onClick={async () => {
+                  setOtp(['', '', '', '', '', ''])
+                  setError(null)
+                  try { await resendEmailOtp(email) } catch {}
+                }} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>Resend</span>
+              </p>
+            </>
+          )}
         </div>
 
-        {/* Already have account + terms — pinned to bottom */}
-        <div style={{ flexShrink: 0, textAlign: 'center', padding: '0 24px', paddingBottom: 'max(20px, env(safe-area-inset-bottom, 20px))' }}>
-          <p style={{ color: C.muted, fontSize: 13, marginBottom: 8 }}>
-            Already have an account?{' '}
-            <span onClick={() => navigate('/login')} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>
-              Log in
-            </span>
-          </p>
-          <p style={{ color: C.subtle, fontSize: 11, lineHeight: 1.6, margin: 0 }}>
-            By continuing you agree to FlatPurse Flow's{' '}
-            <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Terms</span>{' '}and{' '}
-            <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Privacy Policy</span>.
-          </p>
-        </div>
+        {/* Terms — pinned to bottom, step 1 only */}
+        {step === 1 && (
+          <div style={{ flexShrink: 0, textAlign: 'center', padding: '0 24px', paddingBottom: 'max(20px, env(safe-area-inset-bottom, 20px))' }}>
+            <p style={{ color: C.subtle, fontSize: 11, lineHeight: 1.6, margin: 0 }}>
+              By continuing you agree to FlatPurse Flow's{' '}
+              <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Terms</span>{' '}and{' '}
+              <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Privacy Policy</span>.
+            </p>
+          </div>
+        )}
       </div>
     )
   }
@@ -348,12 +566,12 @@ export default function Register() {
   const onF = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => (e.target.style.borderColor = C.accent)
   const onB = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => (e.target.style.borderColor = C.border)
 
-  const STEP_HEADING = ['Create an Account', 'Set Up Your Shop', 'Choose Your Plan', 'Verify Your Number']
+  const STEP_HEADING = ['Create an Account', 'Set Up Your Shop', 'Choose Your Plan', 'Verify Your Email']
   const STEP_SUB = [
     'Enter your personal data to create your account.',
     'Tell us a bit about your business.',
     'Start free and upgrade anytime.',
-    `Enter the 6-digit code sent to ${phone || 'your phone'}.`,
+    `Enter the 6-digit code sent to ${email || 'your email'}.`,
   ]
 
   const ANIM_CSS = `
@@ -396,32 +614,7 @@ export default function Register() {
       <style>{ANIM_CSS}</style>
 
       {/* ── Download modal ── */}
-      {showDownloadModal && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-          <div style={{ position: 'relative', width: '100%', maxWidth: 420, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 24, padding: '44px 40px 40px', textAlign: 'center', overflow: 'hidden' }}>
-            {/* Gradient bloom behind content */}
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%', background: 'radial-gradient(ellipse 120% 80% at 50% 100%, rgba(109,40,217,0.35) 0%, rgba(76,29,149,0.15) 50%, transparent 80%)', pointerEvents: 'none' }} />
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <img src="/Flatpurse flow .svg" alt="Flatpurse" style={{ height: 28, marginBottom: 28, filter: mode === 'dark' ? 'brightness(0) invert(1)' : 'none' }} />
-              <div style={{ width: 64, height: 64, borderRadius: 18, background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 12px 32px rgba(109,40,217,0.45)' }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </div>
-              <h2 style={{ color: C.text, fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 10px' }}>You're all set!</h2>
-              <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.6, margin: '0 0 32px' }}>
-                Your account is ready. Download the Flatpurse Flow app to manage your shop, take bookings, and get paid.
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <a href="#" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: C.text, color: C.bg, borderRadius: 14, padding: '14px 20px', textDecoration: 'none', fontWeight: 700, fontSize: 15 }}>
-                  <AppleIcon />Download on the App Store
-                </a>
-                <a href="#" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: C.surface2, color: C.text, border: `1px solid ${C.border}`, borderRadius: 14, padding: '14px 20px', textDecoration: 'none', fontWeight: 600, fontSize: 15 }}>
-                  <PlayIcon />Get it on Google Play
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {showDownloadModal && <DownloadModal mode={mode} C={C} />}
 
       {/* Left panel — step 1 only, full-bleed photo */}
       {step === 1 && (
@@ -534,10 +727,6 @@ export default function Register() {
                 <div style={{ marginBottom: 18, ...fadeUp(200) }}>
                   <label style={lbl}>Email</label>
                   <input type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="eg. johnfrans@gmail.com" style={di} onFocus={onF} onBlur={onB} />
-                </div>
-                <div style={{ marginBottom: 18, ...fadeUp(240) }}>
-                  <label style={lbl}>Phone Number</label>
-                  <input type="tel" autoComplete="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="eg. +1 780-555-0123" style={di} onFocus={onF} onBlur={onB} />
                 </div>
                 <div style={{ marginBottom: 18, ...fadeUp(280) }}>
                   <label style={lbl}>Password</label>
@@ -688,19 +877,11 @@ export default function Register() {
                             ))}
                           </ul>
 
-                          {/* CTA — only shows when selected, sends OTP then advances to step 4 */}
+                          {/* CTA — only shows when selected, creates the account then advances to step 4 */}
                           {sel && (
                             <button type="button" disabled={loading} onClick={async e => {
                               e.stopPropagation()
-                              if (!phone.trim()) { setError('Please go back and add your phone number to verify your account.'); return }
-                              setError(null)
-                              setOtp(['', '', '', '', '', ''])
-                              goToStep(4)
-                              try {
-                                await sendOtp()
-                              } catch (err) {
-                                setError(err instanceof Error ? err.message : 'Failed to send verification code')
-                              }
+                              await registerAndSendOtp()
                             }}
                               style={{
                                 width: '100%',
@@ -718,7 +899,7 @@ export default function Register() {
                                 letterSpacing: '0.01em',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                               }}>
-                              {loading ? <><Spinner />Sending code…</> : plan.cta}
+                              {loading ? <><Spinner />Creating account…</> : plan.cta}
                             </button>
                           )}
                         </div>
@@ -736,10 +917,10 @@ export default function Register() {
               <>
                 <div style={{ textAlign: 'center', marginBottom: 32, ...fadeUp(80) }}>
                   <div style={{ width: 60, height: 60, borderRadius: 16, background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px', boxShadow: '0 10px 28px rgba(109,40,217,0.35)' }}>
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="3" stroke="#fff" strokeWidth="1.8"/><circle cx="12" cy="17.5" r="1" fill="#fff"/></svg>
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/><polyline points="22,6 12,13 2,6" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </div>
                   <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.6, margin: 0 }}>
-                    We sent a 6-digit code to <strong style={{ color: C.text }}>{phone}</strong>
+                    We sent a 6-digit code to <strong style={{ color: C.text }}>{email}</strong>
                   </p>
                 </div>
 
@@ -781,11 +962,40 @@ export default function Register() {
                   <span onClick={async () => {
                     setOtp(['', '', '', '', '', ''])
                     setError(null)
-                    try { await authSendOtp(phone) } catch {}
+                    try { await resendEmailOtp(email) } catch {}
                   }} style={{ color: C.accent, fontWeight: 600, cursor: 'pointer' }}>Resend</span>
                 </p>
               </>
             )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DownloadModal({ mode, C }: { mode: Mode; C: ReturnType<typeof palette> }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ position: 'relative', width: '100%', maxWidth: 420, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 24, padding: '44px 40px 40px', textAlign: 'center', overflow: 'hidden' }}>
+        {/* Gradient bloom behind content */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%', background: 'radial-gradient(ellipse 120% 80% at 50% 100%, rgba(109,40,217,0.35) 0%, rgba(76,29,149,0.15) 50%, transparent 80%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <img src="/Flatpurse flow .svg" alt="Flatpurse" style={{ height: 28, marginBottom: 28, filter: mode === 'dark' ? 'brightness(0) invert(1)' : 'none' }} />
+          <div style={{ width: 64, height: 64, borderRadius: 18, background: 'linear-gradient(135deg, #7C3AED, #5B21B6)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 12px 32px rgba(109,40,217,0.45)' }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </div>
+          <h2 style={{ color: C.text, fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 10px' }}>You're all set!</h2>
+          <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.6, margin: '0 0 32px' }}>
+            Your account is ready. Download the Flatpurse Flow app to manage your shop, take bookings, and get paid.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <a href="#" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: C.text, color: C.bg, borderRadius: 14, padding: '14px 20px', textDecoration: 'none', fontWeight: 700, fontSize: 15 }}>
+              <AppleIcon />Download on the App Store
+            </a>
+            <a href="#" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, background: C.surface2, color: C.text, border: `1px solid ${C.border}`, borderRadius: 14, padding: '14px 20px', textDecoration: 'none', fontWeight: 600, fontSize: 15 }}>
+              <PlayIcon />Get it on Google Play
+            </a>
           </div>
         </div>
       </div>
